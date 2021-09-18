@@ -1,24 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
 using UnityEngine;
 using static Define;
 
-public class PlayerController : CreatureController
+public class MonsterController : CreatureController
 {
 	protected override void Init()
 	{
 		base.Init();
 	}
-	protected override void UpdateController() 
+	protected override void UpdateController()
 	{
-		GetDirInput();
+		// GetDirInput();
 		base.UpdateController();
-	}
-
-	void LateUpdate()
-	{
-		Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
 	}
 
 	// 키보드 입력
