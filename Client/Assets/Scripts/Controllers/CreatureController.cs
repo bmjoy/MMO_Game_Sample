@@ -9,7 +9,7 @@ public class CreatureController : MonoBehaviour
 	public Vector3Int CellPos { get; set; } = Vector3Int.zero;
 	protected Animator _animator;
     protected SpriteRenderer _sprite;
-    CreatureState _state = CreatureState.Idle;
+    protected CreatureState _state = CreatureState.Idle;
     public CreatureState State
     {
         get { return _state; }
@@ -23,9 +23,9 @@ public class CreatureController : MonoBehaviour
     }
 
     // 내가 방금전 바라보던 방향
-    MoveDir _lastDir = MoveDir.Down;
+    protected MoveDir _lastDir = MoveDir.Down;
 
-	MoveDir _dir = MoveDir.Down;
+	protected MoveDir _dir = MoveDir.Down;
 	public Vector3Int GetFrontCellPos()
 	{
 		Vector3Int cellPos = CellPos;
