@@ -23,6 +23,8 @@ public class ArrowController : CreatureController
 				transform.rotation = Quaternion.Euler(0, 0, -90);
 				break;
 		}
+		State = CreatureState.Moving;
+		_speed = 15.0f;
         base.Init();
     }
 
@@ -32,51 +34,47 @@ public class ArrowController : CreatureController
     }
 
     // 이동 가능한 상태일 때, 실제 좌표를 이동한다
-	protected override void UpdateIdle()
+	protected override void MoveToNextPos()
 	{
-		if (_dir != MoveDir.None)
+		Vector3Int destPos = CellPos;
+		switch (_dir)
 		{
-			Vector3Int destPos = CellPos;
-			switch (_dir)
+			case MoveDir.Up:
+				destPos += Vector3Int.up;
+				break;
+			case MoveDir.Down:
+				destPos += Vector3Int.down;
+				break;
+			case MoveDir.Left:
+				destPos += Vector3Int.left;
+				break;
+			case MoveDir.Right:
+				destPos += Vector3Int.right;
+				break;
+		}
+		if (Managers.Map.CanGo(destPos))
+		{
+			GameObject go = Managers.Object.Find(destPos);
+			// 목적지에 go가 없다면 한칸 이동
+			if (go == null)
 			{
-				case MoveDir.Up:
-					destPos += Vector3Int.up;
-					break;
-				case MoveDir.Down:
-					destPos += Vector3Int.down;
-					break;
-				case MoveDir.Left:
-					destPos += Vector3Int.left;
-					break;
-				case MoveDir.Right:
-					destPos += Vector3Int.right;
-					break;
+				CellPos = destPos;
 			}
-			State = CreatureState.Moving;
-			if (Managers.Map.CanGo(destPos))
+			// 있다면
+			else
 			{
-                GameObject go = Managers.Object.Find(destPos);
-                // 목적지에 go가 없다면 한칸 이동
-				if (go == null)
+				CreatureController cc = go.GetComponent<CreatureController>();
+				if (cc != null)
 				{
-					CellPos = destPos;
+					cc.OnDamaged();
 				}
-                // 있다면
-                else
-                {
-					CreatureController cc = go.GetComponent<CreatureController>();
-					if (cc != null)
-					{
-						cc.OnDamaged();
-					}
-                    Managers.Resource.Destroy(gameObject); 
-                }
+				Managers.Resource.Destroy(gameObject); 
 			}
-            // 갈수 없다면 피격된 상태이므로 파괴
-            else
-            {
-                Managers.Resource.Destroy(gameObject);
-            }
+		}
+		// 갈수 없다면 피격된 상태이므로 파괴
+		else
+		{
+			Managers.Resource.Destroy(gameObject);
 		}
 	}
 }
