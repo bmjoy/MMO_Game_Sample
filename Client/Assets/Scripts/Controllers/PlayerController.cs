@@ -4,91 +4,91 @@ using UnityEditor.Rendering;
 using UnityEngine;
 using static Define;
 
-public class PlayerController :  CreatureController
+public class PlayerController : CreatureController
 {
 	Coroutine _coSkill;
-	bool _rangeSkill = false;
+	bool _rangedSkill = false;
 
 	protected override void Init()
 	{
 		base.Init();
 	}
+
 	protected override void UpdateAnimation()
-    {
-        // 캐릭터의 현재 상태가 Idle일 때 이전에 바라보던 방향으로 애니메이션 실행
-        if (_state == CreatureState.Idle)
-        {
-            switch (_lastDir)
-            {
-                case MoveDir.Up:
-                    _animator.Play("IDLE_BACK");
-                    _sprite.flipX = false;
-                    break;
-                case MoveDir.Down:
-                    _animator.Play("IDLE_FRONT");
-                    _sprite.flipX = false;
-                    break;
-                case MoveDir.Left:
-                    _animator.Play("IDLE_RIGHT");
-                    _sprite.flipX = true;
-                    break;
-                case MoveDir.Right:
-                    _animator.Play("IDLE_RIGHT");
-                    _sprite.flipX = false;
-                    break;
-            }
-        }
-        else if (_state == CreatureState.Moving)
-        {
+	{
+		if (_state == CreatureState.Idle)
+		{
+			switch (_lastDir)
+			{
+				case MoveDir.Up:
+					_animator.Play("IDLE_BACK");
+					_sprite.flipX = false;
+					break;
+				case MoveDir.Down:
+					_animator.Play("IDLE_FRONT");
+					_sprite.flipX = false;
+					break;
+				case MoveDir.Left:
+					_animator.Play("IDLE_RIGHT");
+					_sprite.flipX = true;
+					break;
+				case MoveDir.Right:
+					_animator.Play("IDLE_RIGHT");
+					_sprite.flipX = false;
+					break;
+			}
+		}
+		else if (_state == CreatureState.Moving)
+		{
 			switch (_dir)
 			{
 				case MoveDir.Up:
 					_animator.Play("WALK_BACK");
-                    _sprite.flipX = false;
+					_sprite.flipX = false;
 					break;
 				case MoveDir.Down:
 					_animator.Play("WALK_FRONT");
-                    _sprite.flipX = false;
+					_sprite.flipX = false;
 					break;
 				case MoveDir.Left:
 					_animator.Play("WALK_RIGHT");
-                    _sprite.flipX = true;
+					_sprite.flipX = true;
 					break;
 				case MoveDir.Right:
 					_animator.Play("WALK_RIGHT");
-                    _sprite.flipX = false;
+					_sprite.flipX = false;
 					break;
 			}
-        }
-        else if (_state == CreatureState.Skill)
-        {
-            // Todo
+		}
+		else if (_state == CreatureState.Skill)
+		{
 			switch (_lastDir)
 			{
 				case MoveDir.Up:
-					_animator.Play(_rangeSkill ? "ATTACK_WEAPON_BACK" : "ATTACK_BACK");
-                    _sprite.flipX = false;
+					_animator.Play(_rangedSkill ? "ATTACK_WEAPON_BACK" : "ATTACK_BACK");
+					_sprite.flipX = false;
 					break;
 				case MoveDir.Down:
-					_animator.Play(_rangeSkill ? "ATTACK_WEAPON_FRONT" : "ATTACK_FRONT");
-                    _sprite.flipX = false;
+					_animator.Play(_rangedSkill ? "ATTACK_WEAPON_FRONT" : "ATTACK_FRONT");
+					_sprite.flipX = false;
 					break;
 				case MoveDir.Left:
-					_animator.Play(_rangeSkill ? "ATTACK_WEAPON_RIGHT" : "ATTACK_RIGHT");
-                    _sprite.flipX = true;
+					_animator.Play(_rangedSkill ? "ATTACK_WEAPON_RIGHT" : "ATTACK_RIGHT");
+					_sprite.flipX = true;
 					break;
 				case MoveDir.Right:
-					_animator.Play(_rangeSkill ? "ATTACK_WEAPON_RIGHT" : "ATTACK_RIGHT");
-                    _sprite.flipX = false;
+					_animator.Play(_rangedSkill ? "ATTACK_WEAPON_RIGHT" : "ATTACK_RIGHT");
+					_sprite.flipX = false;
 					break;
 			}
-        }
-        else
-        {
+		}
+		else
+		{
 
-        }
-    }
-	protected override void UpdateController() 
+		}
+	}
+
+	protected override void UpdateController()
 	{
 		switch (State)
 		{
@@ -99,6 +99,7 @@ public class PlayerController :  CreatureController
 				GetDirInput();
 				break;
 		}
+		
 		base.UpdateController();
 	}
 
@@ -115,17 +116,18 @@ public class PlayerController :  CreatureController
 			State = CreatureState.Moving;
 			return;
 		}
+
 		// 스킬 상태로 갈지 확인
 		if (Input.GetKey(KeyCode.Space))
 		{
 			State = CreatureState.Skill;
-			// _coSkill = StartCoroutine("CoStartPunch");
+			//_coSkill = StartCoroutine("CoStartPunch");
 			_coSkill = StartCoroutine("CoStartShootArrow");
 		}
 	}
 
 	// 키보드 입력
-    void GetDirInput()
+	void GetDirInput()
 	{
 		if (Input.GetKey(KeyCode.W))
 		{
@@ -145,9 +147,10 @@ public class PlayerController :  CreatureController
 		}
 		else
 		{
-			Dir = MoveDir.None;
+			Dir = MoveDir.None;			
 		}
 	}
+
 	IEnumerator CoStartPunch()
 	{
 		// 피격 판정
@@ -156,26 +159,25 @@ public class PlayerController :  CreatureController
 		{
 			CreatureController cc = go.GetComponent<CreatureController>();
 			if (cc != null)
-			{
 				cc.OnDamaged();
-			}
 		}
+
 		// 대기 시간
-		_rangeSkill = false;
+		_rangedSkill = false;
 		yield return new WaitForSeconds(0.5f);
 		State = CreatureState.Idle;
 		_coSkill = null;
 	}
+
 	IEnumerator CoStartShootArrow()
 	{
 		GameObject go = Managers.Resource.Instantiate("Creature/Arrow");
 		ArrowController ac = go.GetComponent<ArrowController>();
-		// 화살의 방향 == 플레이어의 방향
 		ac.Dir = _lastDir;
 		ac.CellPos = CellPos;
 
 		// 대기 시간
-		_rangeSkill = true;
+		_rangedSkill = true;
 		yield return new WaitForSeconds(0.3f);
 		State = CreatureState.Idle;
 		_coSkill = null;

@@ -72,8 +72,8 @@ public class MapManager
 
 		MinX = int.Parse(reader.ReadLine());
 		MaxX = int.Parse(reader.ReadLine());
-		MaxY = int.Parse(reader.ReadLine());
 		MinY = int.Parse(reader.ReadLine());
+		MaxY = int.Parse(reader.ReadLine());
 
 		int xCount = MaxX - MinX + 1;
 		int yCount = MaxY - MinY + 1;

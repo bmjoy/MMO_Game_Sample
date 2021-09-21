@@ -7,19 +7,26 @@ public class MonsterController : CreatureController
 {
 	Coroutine _coPatrol;
 	Coroutine _coSearch;
-	[SerializeField] Vector3Int _destCellPos;
-	[SerializeField] GameObject _target;
-	[SerializeField] float _searchRange = 5.0f;
+
+	[SerializeField]
+	Vector3Int _destCellPos;
+
+	[SerializeField]
+	GameObject _target;
+
+	[SerializeField]
+	float _searchRange = 5.0f;
+
 	public override CreatureState State
-    {
-        get { return _state; }
-        set 
-        {
-            if (_state == value)
-                return;
+	{
+		get { return _state; }
+		set
+		{
+			if (_state == value)
+				return;
 
 			base.State = value;
-			
+
 			if (_coPatrol != null)
 			{
 				StopCoroutine(_coPatrol);
@@ -31,12 +38,13 @@ public class MonsterController : CreatureController
 				StopCoroutine(_coSearch);
 				_coSearch = null;
 			}
-        }
-    }
+		}
+	}
 
 	protected override void Init()
 	{
 		base.Init();
+
 		State = CreatureState.Idle;
 		Dir = MoveDir.None;
 
@@ -51,6 +59,7 @@ public class MonsterController : CreatureController
 		{
 			_coPatrol = StartCoroutine("CoPatrol");
 		}
+
 		if (_coSearch == null)
 		{
 			_coSearch = StartCoroutine("CoSearch");
@@ -66,8 +75,6 @@ public class MonsterController : CreatureController
 		}
 
 		List<Vector3Int> path = Managers.Map.FindPath(CellPos, destPos, ignoreDestCollision: true);
-		
-		// 길을 못찾았을 때 or 너무 경우의 수가 많을 때 => 플레이어가 너무 빨리 도망 갔을 때
 		if (path.Count < 2 || (_target != null && path.Count > 10))
 		{
 			_target = null;
@@ -78,7 +85,6 @@ public class MonsterController : CreatureController
 		Vector3Int nextPos = path[1];
 		Vector3Int moveCellDir = nextPos - CellPos;
 
-		// ToDo : Astar
 		if (moveCellDir.x > 0)
 			Dir = MoveDir.Right;
 		else if (moveCellDir.x < 0)
@@ -94,18 +100,16 @@ public class MonsterController : CreatureController
 		{
 			CellPos = nextPos;
 		}
-		// 길이 막혀 있다면
 		else
 		{
 			State = CreatureState.Idle;
 		}
 	}
-	
 
 	public override void OnDamaged()
 	{
 		GameObject effect = Managers.Resource.Instantiate("Effect/DieEffect");
-		effect.transform.position = transform.position; // 몬스터 위치에 생성
+		effect.transform.position = transform.position;
 		effect.GetComponent<Animator>().Play("START");
 		GameObject.Destroy(effect, 0.5f);
 
@@ -139,21 +143,21 @@ public class MonsterController : CreatureController
 	{
 		while (true)
 		{
-			// 1초마다 플레이어를 Search
 			yield return new WaitForSeconds(1);
 
 			if (_target != null)
 				continue;
-			_target = Managers.Object.Find(go => 
+
+			_target = Managers.Object.Find((go) =>
 			{
 				PlayerController pc = go.GetComponent<PlayerController>();
 				if (pc == null)
 					return false;
-				
+
 				Vector3Int dir = (pc.CellPos - CellPos);
-				if (dir.magnitude < _searchRange)
+				if (dir.magnitude > _searchRange)
 					return false;
-				
+
 				return true;
 			});
 		}
