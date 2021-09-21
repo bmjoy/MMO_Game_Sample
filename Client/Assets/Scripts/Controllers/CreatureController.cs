@@ -5,11 +5,11 @@ using static Define;
 
 public class CreatureController : MonoBehaviour
 {
-    public float _speed = 5.0f;
+    [SerializeField] public float _speed = 5.0f;
 	public Vector3Int CellPos { get; set; } = Vector3Int.zero;
 	protected Animator _animator;
     protected SpriteRenderer _sprite;
-    protected CreatureState _state = CreatureState.Idle;
+    [SerializeField] protected CreatureState _state = CreatureState.Idle;
     public virtual CreatureState State
     {
         get { return _state; }
@@ -25,7 +25,7 @@ public class CreatureController : MonoBehaviour
     // 내가 방금전 바라보던 방향
     protected MoveDir _lastDir = MoveDir.Down;
 
-	protected MoveDir _dir = MoveDir.Down;
+	[SerializeField] protected MoveDir _dir = MoveDir.Down;
 	public Vector3Int GetFrontCellPos()
 	{
 		Vector3Int cellPos = CellPos;
