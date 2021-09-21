@@ -64,8 +64,12 @@ public class ArrowController : CreatureController
                 // 있다면
                 else
                 {
-                    Debug.Log(go.name);
-                    Managers.Resource.Destroy(gameObject);
+					CreatureController cc = go.GetComponent<CreatureController>();
+					if (cc != null)
+					{
+						cc.OnDamaged();
+					}
+                    Managers.Resource.Destroy(gameObject); 
                 }
 			}
             // 갈수 없다면 피격된 상태이므로 파괴
