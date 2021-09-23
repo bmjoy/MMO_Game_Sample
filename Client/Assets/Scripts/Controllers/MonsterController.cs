@@ -17,8 +17,10 @@ public class MonsterController : CreatureController
 
 	[SerializeField]
 	float _searchRange = 10.0f;
+
 	[SerializeField]
 	float _skillRange = 1.0f;
+
 	[SerializeField]
 	bool _rangedSkill = false;
 
@@ -57,13 +59,9 @@ public class MonsterController : CreatureController
 		_rangedSkill = (Random.Range(0, 2) == 0 ? true : false);
 
 		if (_rangedSkill)
-		{
 			_skillRange = 10.0f;
-		}
 		else
-		{
 			_skillRange = 1.0f;
-		}
 	}
 
 	protected override void UpdateIdle()
@@ -90,14 +88,16 @@ public class MonsterController : CreatureController
 
 			Vector3Int dir = destPos - CellPos;
 			// _skillRange 범위 안에 있던가 x, y 기준으로 일직선에 있어야 한다.
-			if (dir.magnitude <= _skillRange && dir.x == 0 || dir.y == 0)
+			if (dir.magnitude <= _skillRange && (dir.x == 0 || dir.y == 0))
 			{
 				Dir = GetDirFromVec(dir);
 				State = CreatureState.Skill;
+
 				if (_rangedSkill)
 					_coSkill = StartCoroutine("CoStartShootArrow");
 				else
 					_coSkill = StartCoroutine("CoStartPunch");
+
 				return;
 			}
 		}
