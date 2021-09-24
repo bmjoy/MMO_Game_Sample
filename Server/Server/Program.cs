@@ -10,6 +10,7 @@ using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Google.Protobuf.WellKnownTypes;
 using ServerCore;
+using Server.Game;
 
 namespace Server
 {
@@ -24,6 +25,9 @@ namespace Server
 
 		static void Main(string[] args)
 		{
+			// GameRoom 생성
+			RoomManager.Instance.Add();
+
 			// DNS (Domain Name System)
 			string host = Dns.GetHostName();
 			IPHostEntry ipHost = Dns.GetHostEntry(host);
