@@ -35,6 +35,7 @@ public class ObjectManager
 			pc.CellPos = new Vector3Int(info.PosX, info.PosY, 0);
 		}
 	}
+	
 	public void Add(int id, GameObject go)
 	{
 		_objects.Add(id, go);

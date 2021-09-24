@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.Protocol;
+﻿using Google.Protobuf;
+using Google.Protobuf.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -81,6 +82,18 @@ namespace Server.Game
                         if (p != player)
                             p.Session.Send(despawnPacket);
                     }
+                }
+            }
+        }
+
+        public void Broadcast(IMessage packet)
+        {
+            // C_MoveHandler를 여러 쓰레드에서 처리를 할 것이기 때문에 lock을 잡아줘야 한다.
+            lock (_lock)
+            {
+                foreach (Player p in _players)
+                {
+                    p.Session.Send(packet);
                 }
             }
         }
