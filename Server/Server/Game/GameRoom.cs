@@ -85,6 +85,52 @@ namespace Server.Game
                 }
             }
         }
+        
+        public void HandleMove(Player player, C_Move movePacket)
+        {
+            if (player == null)
+                return;
+
+            lock (_lock)
+            {
+                // ToDO : 검증
+                // 클라에서 거짓된 정보를 보냈을 수도 있다고 가정하고 한번 검증을 해줘야 한다.
+                PlayerInfo info = player.Info;
+                info.PosInfo = movePacket.PosInfo;
+
+                // Broadcast
+                S_Move resMovePacket = new S_Move();
+                resMovePacket.PlayerId = player.Info.PlayerId;
+                resMovePacket.PosInfo = movePacket.PosInfo;
+
+                Broadcast(resMovePacket);
+            }
+        }
+
+        public void HandleSkill(Player player, C_Skill skillPacket)
+        {
+            // 나중에는 player가 해당 Room에 실제로 존재하는지 더블 체크 하는 것도 좋다
+            if (player == null)
+                return;
+            lock (_lock)
+            {
+                PlayerInfo info = player.Info;
+                if (info.PosInfo.State != CreatureState.Idle)
+                    return;
+
+                // Todo : 스킬 사용 가능 여부 체크
+
+                // 통과
+                info.PosInfo.State = CreatureState.Skill;
+
+                S_Skill sKill = new S_Skill() { Info = new SkillInfo() };
+                sKill.PlayerId = info.PlayerId;
+                sKill.Info.SkillId = 1; // 나중에 스킬과 관련된 부분은 데이터 시트(Json, XML로 따로 관리)로 관리 해서 관리
+                Broadcast(sKill);
+
+                // Todo : 데미지 판정
+            }
+        }
 
         public void Broadcast(IMessage packet)
         {

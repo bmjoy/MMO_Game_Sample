@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server;
+using Server.Game;
 using ServerCore;
 using System;
 using System.Collections.Generic;
@@ -15,23 +16,31 @@ class PacketHandler
 
         Console.WriteLine($"C_Move({movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosY})");
 
-		if (clientSession.MyPlayer == null)
+		Player player = clientSession.MyPlayer;
+		if (player == null)
 			return;
-		if (clientSession.MyPlayer.Room == null)
+
+		GameRoom room = player.Room;
+		if (room == null)
 			return;
 
-		// ToDO : 검증
-		// 클라에서 거짓된 정보를 보냈을 수도 있다고 가정하고 한번 검증을 해줘야 한다.
-
-		// 일단 믿고 작업
-		PlayerInfo info = clientSession.MyPlayer.Info;
-		info.PosInfo = movePacket.PosInfo;
-
-		// Broadcast
-		S_Move resMovePacket = new S_Move();
-		resMovePacket.PlayerId = clientSession.MyPlayer.Info.PlayerId;
-		resMovePacket.PosInfo = movePacket.PosInfo;
-
-		clientSession.MyPlayer.Room.Broadcast(resMovePacket);
+		room.HandleMove(player, movePacket);
 	}
+
+	public static void C_SkillHandler(PacketSession session, IMessage packet)
+    {
+		C_Skill skillPacket = packet as C_Skill;
+		ClientSession clientSession = session as ClientSession;
+
+		Player player = clientSession.MyPlayer;
+		if (player == null)
+			return;
+
+		GameRoom room = player.Room;
+		if (room == null)
+			return;
+
+		room.HandleSkill(player, skillPacket);
+	}
+
 }
