@@ -11,9 +11,10 @@ namespace Server.Game
         Dictionary<int, GameRoom> _rooms = new Dictionary<int, GameRoom>();
         int _roomId = 1;
 
-        public GameRoom Add()
+        public GameRoom Add(int mapId)
         {
             GameRoom gameRoom = new GameRoom();
+            gameRoom.Init(mapId);
 
             // atomic하게 lock을 잡고 작업이 진행되기 때문에
             // roomId가 중복해서 증가되는 일은 없을 것이다.
