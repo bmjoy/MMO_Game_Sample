@@ -12,29 +12,55 @@ public class ObjectManager
 	// 프로젝트에 따라 달라지는 부분이기는 하지만
 	// _objects 하나로 관리하는 경우가 있고, players, monsters 등 여러개로 나눠서 관리하는 경우도 있다.
 	Dictionary<int, GameObject> _objects = new Dictionary<int, GameObject>();
-	public void Add(PlayerInfo info, bool myPlayer = false)
+
+	public static GameObjectType GetObjectTypeById (int id)
 	{
-		if (myPlayer)
-		{
-			GameObject go = Managers.Resource.Instantiate("Creature/MyPlayer");
-			go.name = info.Name;
-			_objects.Add(info.PlayerId, go);
+		int type = (id >> 24) & 0x7F;
+		return (GameObjectType)type;
+	}
 
-			MyPlayer = go.GetComponent<MyPlayerController>();
-			MyPlayer.Id = info.PlayerId;
-			MyPlayer.PosInfo = info.PosInfo;
-			MyPlayer.SyncPos();
+	public void Add(ObjectInfo info, bool myPlayer = false)
+	{
+		GameObjectType objectType = GetObjectTypeById(info.ObjectId);
+		if (objectType == GameObjectType.Player)
+		{
+			if (myPlayer)
+			{
+				GameObject go = Managers.Resource.Instantiate("Creature/MyPlayer");
+				go.name = info.Name;
+				_objects.Add(info.ObjectId, go);
+
+				MyPlayer = go.GetComponent<MyPlayerController>();
+				MyPlayer.Id = info.ObjectId;
+				MyPlayer.PosInfo = info.PosInfo;
+				MyPlayer.SyncPos();
+			}
+			else
+			{
+				GameObject go = Managers.Resource.Instantiate("Creature/Player");
+				go.name = info.Name;
+				_objects.Add(info.ObjectId, go);
+
+				PlayerController pc = go.GetComponent<PlayerController>();
+				pc.Id = info.ObjectId;
+				pc.PosInfo = info.PosInfo;
+				pc.SyncPos();
+			}
 		}
-		else
+		else if (objectType == GameObjectType.Moster)
 		{
-			GameObject go = Managers.Resource.Instantiate("Creature/Player");
-			go.name = info.Name;
-			_objects.Add(info.PlayerId, go);
 
-			PlayerController pc = go.GetComponent<PlayerController>();
-			pc.Id = info.PlayerId;
-			pc.PosInfo = info.PosInfo;
-			MyPlayer.SyncPos();
+		}
+		else if (objectType == GameObjectType.Projectile)
+		{
+			GameObject go = Managers.Resource.Instantiate("Creature/Arrow");
+			go.name = "Arrow";
+			_objects.Add(info.ObjectId, go);
+
+			ArrowController ac = go.GetComponent<ArrowController>();
+			ac.Dir = info.PosInfo.MoveDir;
+			ac.CellPos = new Vector3Int(info.PosInfo.PosX, info.PosInfo.PosY, 0);
+			ac.SyncPos();
 		}
 	}
 

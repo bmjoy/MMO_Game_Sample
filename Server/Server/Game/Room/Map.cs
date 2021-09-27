@@ -57,7 +57,7 @@ namespace Server.Game
 		public int SizeY { get { return MaxY - MinY + 1; } }
 
 		bool[,] _collision;
-		Player[,] _players;
+		GameObject[,] _objects;
 
 		public bool CanGo(Vector2Int cellPos, bool checkObject = true)
 		{
@@ -71,10 +71,10 @@ namespace Server.Game
 			// 갈 수 있는 조건 
 			// 1. 벽이 없음
 			// 2. 플레이어가 없음
-			return !_collision[y, x] && (!checkObject || _players[y,x] == null);
+			return !_collision[y, x] && (!checkObject || _objects[y,x] == null);
 		}
 
-		public Player Find(Vector2Int cellPos)
+		public GameObject Find(Vector2Int cellPos)
         {
 			if (cellPos.x < MinX || cellPos.x > MaxX)
 				return null;
@@ -83,32 +83,43 @@ namespace Server.Game
 
 			int x = cellPos.x - MinX;
 			int y = MaxY - cellPos.y;
-			return _players[y, x];
+
+			return _objects[y, x];
 		}
 
-		public bool ApplyMove(Player player, Vector2Int dest)
+		// 해당 좌표에서 떠나는 것을 처리
+		public bool ApplyLeave(GameObject gameObject)
         {
-			PositionInfo posInfo = player.Info.PosInfo;
+			PositionInfo posInfo = gameObject.Info.PosInfo;
 			if (posInfo.PosX < MinX || posInfo.PosX > MaxX)
 				return false;
 			if (posInfo.PosY < MinY || posInfo.PosY > MaxY)
 				return false;
 
+			// 기존에 있던 위치 null로 변경
+			{
+				int x = posInfo.PosX - MinX;
+				int y = MaxY - posInfo.PosY;
+				if (_objects[y, x] == gameObject)
+					_objects[y, x] = null;
+			}
+
+			return true;
+		}
+
+		public bool ApplyMove(GameObject gameObject, Vector2Int dest)
+        {
+			ApplyLeave(gameObject);
+			PositionInfo posInfo = gameObject.Info.PosInfo;
+
 			if (CanGo(dest, true) == false)
 				return false;
 
-			// 기존에 있던 위치 null로 변경
-            {
-				int x = posInfo.PosX - MinX;
-				int y = MaxY - posInfo.PosY;
-				if (_players[y, x] == player)
-					_players[y, x] = null;
-			}
 			// 목적지로 이동
             {
 				int x = dest.x - MinX;
 				int y = MaxY - dest.y;
-				_players[y, x] = player;
+				_objects[y, x] = gameObject;
 			}
 
 			// 실제로 좌표 이동
@@ -134,7 +145,7 @@ namespace Server.Game
 			int xCount = MaxX - MinX + 1;
 			int yCount = MaxY - MinY + 1;
 			_collision = new bool[yCount, xCount];
-			_players = new Player[yCount, xCount];
+			_objects = new GameObject[yCount, xCount];
 
 			for (int y = 0; y < yCount; y++)
 			{
