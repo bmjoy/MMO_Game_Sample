@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using Google.Protobuf.Protocol;
+using System;
 using System.Collections.Generic;
-using Google.Protobuf.Protocol;
-using UnityEngine;
+using System.Text;
 
-namespace Data
-{ 
-#region Stat
+namespace Server.Data
+{
+	#region Stat
 	[Serializable]
 	public class Stat
 	{
@@ -28,11 +27,11 @@ namespace Data
 				dict.Add(stat.level, stat);
 			return dict;
 		}
-		
 	}
-	#endregion
+    #endregion
 
-	#region Skill
+    #region Skill
+
     [Serializable]
     public class Skill
     {

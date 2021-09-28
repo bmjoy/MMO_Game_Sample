@@ -11,6 +11,7 @@ using Google.Protobuf.Protocol;
 using Google.Protobuf.WellKnownTypes;
 using ServerCore;
 using Server.Game;
+using Server.Data;
 
 namespace Server
 {
@@ -25,6 +26,10 @@ namespace Server
 
 		static void Main(string[] args)
 		{
+			ConfigManager.LoadConfig();
+			DataManager.LoadData();
+
+			var d = DataManager.StatDict;
 			// GameRoom 생성
 			RoomManager.Instance.Add(1);
 
@@ -45,7 +50,7 @@ namespace Server
 			{
 				// JobTimer.Instance.Flush();
 				RoomManager.Instance.Find(1).Update();
-				Thread.Sleep(100);
+				//Thread.Sleep(100);
 			}
 		}
 	}

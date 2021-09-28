@@ -12,14 +12,15 @@ namespace Server.Game
         long _nextMoveTick = 0;
         public override void Update()
         {
-            if (Owner == null || Room == null)
+            if (Data == null || Data.projectile == null || Owner == null || Room == null)
                 return;
 
             if (_nextMoveTick >= Environment.TickCount64)
                 return;
 
-            // 50이 내가 원하는 시간
-            _nextMoveTick = Environment.TickCount64 + 50;
+            // 1000 ms => tick은 ms 단위로 계산되기 때문에 1초를 speed로 나누면 내가 기다려야 하는 시간이 계산이 된다
+            long tick = (long)(1000 / Data.projectile.speed);
+            _nextMoveTick = Environment.TickCount64 + tick;
 
             // 앞으로 이동하는 연산
             Vector2Int destPos = GetFrontCellPos();

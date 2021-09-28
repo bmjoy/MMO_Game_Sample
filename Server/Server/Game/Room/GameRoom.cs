@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -198,31 +199,43 @@ namespace Server.Game
                 sKill.Info.SkillId = skillPacket.Info.SkillId; // 나중에 스킬과 관련된 부분은 데이터 시트(Json, XML로 따로 관리)로 관리 해서 관리
                 Broadcast(sKill); // 스킬을 사용한다는 애니메이션을 맞추기 위한 Broadcast
 
-                // Todo : 스킬 사용 가능 여부 체크
-                if (skillPacket.Info.SkillId == 1)
-                {
-                    // Todo : 데미지 판정
-                    Vector2Int skillPos = player.GetFrontCellPos(info.PosInfo.MoveDir);
-                    GameObject target = Map.Find(skillPos);
-                    if (target != null)
-                    {
-                        Console.WriteLine("Hit GameObject");
-                    }
-                }
-                else if (skillPacket.Info.SkillId == 2)
-                {
-                    // Todo : Arrow
-                    Arrow arrow = ObjectManager.Instance.Add<Arrow>();
-                    if (arrow == null)
-                        return;
+                Data.Skill skillData = null;
+                if (DataManager.SkillDict.TryGetValue(skillPacket.Info.SkillId, out skillData) == false)
+                    return;
 
-                    arrow.Owner = player;
-                    arrow.PosInfo.State = CreatureState.Moving;
-                    arrow.PosInfo.MoveDir = player.PosInfo.MoveDir;
-                    arrow.PosInfo.PosX = player.PosInfo.PosX;
-                    arrow.PosInfo.PosY = player.PosInfo.PosY;
+                switch (skillData.skllType)
+                {
+                    case SkillType.SkillAuto:
+                        {
+                            // Todo : 데미지 판정
+                            Vector2Int skillPos = player.GetFrontCellPos(info.PosInfo.MoveDir);
+                            GameObject target = Map.Find(skillPos);
+                            if (target != null)
+                            {
+                                Console.WriteLine("Hit GameObject");
+                            }
+                        }
+                        break;
 
-                    EnterGame(arrow);
+                        // 투사체 스킬의 종류에 따라서 분기 처리를 해주는 작업을 해줘야 한다.
+                    case SkillType.SkillProjectile:
+                        {
+                            // Todo : Arrow
+                            Arrow arrow = ObjectManager.Instance.Add<Arrow>();
+                            if (arrow == null)
+                                return;
+
+                            arrow.Owner = player;
+                            arrow.Data = skillData;
+                            arrow.PosInfo.State = CreatureState.Moving;
+                            arrow.PosInfo.MoveDir = player.PosInfo.MoveDir;
+                            arrow.PosInfo.PosX = player.PosInfo.PosX;
+                            arrow.PosInfo.PosY = player.PosInfo.PosY;
+
+                            EnterGame(arrow);
+                        }
+                        break;
+
                 }
             }
         }
