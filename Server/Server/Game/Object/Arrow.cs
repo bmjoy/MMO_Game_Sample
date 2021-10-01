@@ -39,9 +39,10 @@ namespace Server.Game
             {
                 // 목적지에 대상이 있다면
                 GameObject target = Room.Map.Find(destPos);
+
                 if (target != null)
                 {
-                    // Todo : 피격 판정
+                    target.OnDamaged(this ,Data.damage);
                 }
 
                 // 소멸

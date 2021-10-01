@@ -20,6 +20,11 @@ public class MultiPlayersBuildAndRun
     {
         PerformWin64Build(4);
     }
+    [MenuItem("Tools/RunMultipayer/6 Players")]
+    static void PerformWin64Build6()
+    {
+        PerformWin64Build(6);
+    }
 
     static void PerformWin64Build(int playerCount)
     {
