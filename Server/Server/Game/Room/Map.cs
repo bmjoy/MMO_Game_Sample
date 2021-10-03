@@ -44,7 +44,20 @@ namespace Server.Game
         {
 			return new Vector2Int(a.x + b.x, a.y + b.y);
         }
-    }
+
+		public static Vector2Int operator -(Vector2Int a, Vector2Int b)
+		{
+			return new Vector2Int(a.x - b.x, a.y - b.y);
+		}
+		
+		public float magnitude { get { return (float)Math.Sqrt(sqrMagnitude); } }
+
+		// 두 벡터의 크기를 비교하는 경우에, 크기를 제곱한 값을 사용해서 비교할 수 있습니다.
+		public int sqrMagnitude { get { return (x * x + y * y); } }
+
+		// 0,0에서 갈 수 있는 거리 => 수직과 수평으로 가야하는 거리를 계산
+		public int cellDistFromZero { get { return Math.Abs(x) + Math.Abs(y); } }
+	}
 
 	public class Map
 	{
@@ -164,7 +177,9 @@ namespace Server.Game
 		int[] _deltaX = new int[] { 0, 0, -1, 1 };
 		int[] _cost = new int[] { 10, 10, 10, 10 };
 
-		public List<Vector2Int> FindPath(Vector2Int startCellPos, Vector2Int destCellPos, bool ignoreDestCollision = false)
+		// checkObject => 길을 찾는 도중에 오브젝트를 체크할지를 결정
+		// checkObjects == true => 다른 오브젝트까지 다 충돌 판정을 할 때 고려를 할 것이고 그게 아니라면 기본적인 벽만 체크를 하겠다.
+		public List<Vector2Int> FindPath(Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true)
 		{
 			List<Pos> path = new List<Pos>();
 
@@ -220,9 +235,9 @@ namespace Server.Game
 
 					// 유효 범위를 벗어났으면 스킵
 					// 벽으로 막혀서 갈 수 없으면 스킵
-					if (!ignoreDestCollision || next.Y != dest.Y || next.X != dest.X)
+					if (next.Y != dest.Y || next.X != dest.X)
 					{
-						if (CanGo(Pos2Cell(next)) == false) // CellPos
+						if (CanGo(Pos2Cell(next), checkObjects) == false) // CellPos
 							continue;
 					}
 

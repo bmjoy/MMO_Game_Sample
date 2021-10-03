@@ -22,13 +22,22 @@ namespace Server.Game
         public void Init(int mapId)
         {
             Map.LoadMap(mapId);
+
+            // Temp
+            Monster moster = ObjectManager.Instance.Add<Monster>();
+            moster.CellPos = new Vector2Int(5, 5);
+            EnterGame(moster);
         }
 
         public void Update()
         {
             lock (_lock)
             {
-                foreach(Projectile projectile in _projectiles.Values)
+                foreach (Monster monster in _monsters.Values)
+                {
+                    monster.Update();
+                }
+                foreach (Projectile projectile in _projectiles.Values)
                 {
                     projectile.Update();
                 }
@@ -78,7 +87,7 @@ namespace Server.Game
                         player.Session.Send(spwanPacket);
                     }
                 }
-                else if (type == GameObjectType.Moster)
+                else if (type == GameObjectType.Monster)
                 {
                     Monster monster = gameObject as Monster;
                     _monsters.Add(gameObject.Id, monster);
@@ -129,7 +138,7 @@ namespace Server.Game
                         player.Session.Send(leavePacket);
                     }
                 }
-                else if (type == GameObjectType.Moster)
+                else if (type == GameObjectType.Monster)
                 {
                     Monster monster = null;
                     if (_monsters.Remove(objectId, out monster) == false)
@@ -253,6 +262,16 @@ namespace Server.Game
 
                 }
             }
+        }
+
+        public Player FindPlayer(Func<GameObject, bool> condition)
+        {
+            foreach (Player player in _players.Values)
+            {
+                if (condition.Invoke(player))
+                    return player;
+            }
+            return null;
         }
 
         public void Broadcast(IMessage packet)

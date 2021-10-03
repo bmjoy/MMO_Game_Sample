@@ -34,7 +34,7 @@ enum MoveDir {
 enum GameObjectType {
   NONE = 0;
   PLAYER = 1;
-  MOSTER = 2;
+  MONSTER = 2;
   PROJECTILE = 3;
 }
 
