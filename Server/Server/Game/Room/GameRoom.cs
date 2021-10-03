@@ -50,6 +50,9 @@ namespace Server.Game
                     _players.Add(gameObject.Id, player);
                     player.Room = this;
 
+                    // 처음 접속하자마자 데미지가 안들어오는 버그 수정
+                    Map.ApplyMove(player, new Vector2Int(player.CellPos.x, player.CellPos.y));
+
                     // 본인한테 정보 전송
                     {
                         S_EnterGame enterPacket = new S_EnterGame();
@@ -63,6 +66,15 @@ namespace Server.Game
                             if (gameObject != p)
                                 spwanPacket.Objects.Add(p.Info);
                         }
+
+                        // 해당 방에 있는 몬스터의 정보도 보내줘야 한다.
+                        // 방금 막 방에 접속한 플레이어는 몬스터 정보를 볼 수 없는 문제가 생김
+                        foreach (Monster m in _monsters.Values)
+                            spwanPacket.Objects.Add(m.Info);
+
+                        foreach (Projectile p in _projectiles.Values)
+                            spwanPacket.Objects.Add(p.Info);
+
                         player.Session.Send(spwanPacket);
                     }
                 }
@@ -71,6 +83,8 @@ namespace Server.Game
                     Monster monster = gameObject as Monster;
                     _monsters.Add(gameObject.Id, monster);
                     monster.Room = this;
+
+                    Map.ApplyMove(monster, new Vector2Int(monster.CellPos.x, monster.CellPos.y));
                 }
                 else if (type == GameObjectType.Projectile)
                 {

@@ -75,7 +75,40 @@ namespace Server.Game
 
 		public virtual void OnDamaged(GameObject attacker, int damage)
 		{
+			// Max는 둘중 더 큰 숫자를 넣어준다.
+			Stat.Hp = Math.Max(Stat.Hp - damage, 0);
 
+			// TODO 
+			S_ChangeHp changePacket = new S_ChangeHp();
+			changePacket.ObjectId = Id;
+			changePacket.Hp = Stat.Hp;
+			Room.Broadcast(changePacket);
+
+			if (Stat.Hp <= 0)
+            {
+				OnDead(attacker);
+			}
+		}
+
+		public virtual void OnDead(GameObject attacker)
+        {
+			S_Die diePacket = new S_Die();
+			diePacket.ObjectId = Id;
+			diePacket.AttackerId = attacker.Id;
+			Room.Broadcast(diePacket);
+
+			// 일반적으로 죽으면 풀피 상태에서 랜덤으로 다시 리스폰 되느 경우도 있을 것이고
+			// 해당 방에서 내쫓고 재시작을 해야 다시 들어오는 경우도 있을 것이다.
+			GameRoom room = Room;
+			room.LeaveGame(Id);
+
+			Stat.Hp = Stat.MaxHp;
+			PosInfo.State = CreatureState.Idle;
+			PosInfo.MoveDir = MoveDir.Down;
+			PosInfo.PosX = 0;
+			PosInfo.PosY = 0;
+
+			room.EnterGame(this);
 		}
 	}
 }

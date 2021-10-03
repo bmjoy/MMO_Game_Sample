@@ -42,7 +42,8 @@ namespace Server.Game
 
                 if (target != null)
                 {
-                    target.OnDamaged(this ,Data.damage);
+                    // 공격력 = damage + 스탯
+                    target.OnDamaged(this, Data.damage + Owner.Stat.Attack);
                 }
 
                 // 소멸

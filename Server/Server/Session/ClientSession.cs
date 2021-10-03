@@ -9,6 +9,7 @@ using System.Net;
 using Google.Protobuf.Protocol;
 using Google.Protobuf;
 using Server.Game;
+using Server.Data;
 
 namespace Server
 {
@@ -44,6 +45,11 @@ namespace Server
 				MyPlayer.Info.PosInfo.MoveDir = MoveDir.Down;
 				MyPlayer.Info.PosInfo.PosX = 0;
 				MyPlayer.Info.PosInfo.PosY = 0;
+
+				StatInfo stat = null;
+				DataManager.StatDict.TryGetValue(1, out stat);
+				// protobuf에서 제공해주는 기능 => 두 데이터를 합쳐준다.
+				MyPlayer.Stat.MergeFrom(stat);
 
 				MyPlayer.Session = this;
 			}
