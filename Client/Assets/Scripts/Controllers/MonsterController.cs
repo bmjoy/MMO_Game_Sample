@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using Google.Protobuf.Protocol;
+using System.Collections;
 using System.Collections.Generic;
-using Google.Protobuf.Protocol;
 using UnityEngine;
 using static Define;
 
@@ -10,6 +10,7 @@ public class MonsterController : CreatureController
 
 	[SerializeField]
 	bool _rangedSkill = false;
+
 	protected override void Init()
 	{
 		base.Init();
@@ -27,8 +28,8 @@ public class MonsterController : CreatureController
 
 	public override void OnDamaged()
 	{
-		// Managers.Object.Remove(Id);
-		// Managers.Resource.Destroy(gameObject);
+		//Managers.Object.Remove(Id);
+		//Managers.Resource.Destroy(gameObject);
 	}
 
 	IEnumerator CoStartPunch()

@@ -24,9 +24,9 @@ namespace Server.Game
             Map.LoadMap(mapId);
 
             // Temp
-            Monster moster = ObjectManager.Instance.Add<Monster>();
-            moster.CellPos = new Vector2Int(5, 5);
-            EnterGame(moster);
+            Monster monster = ObjectManager.Instance.Add<Monster>();
+            monster.CellPos = new Vector2Int(5, 5);
+            EnterGame(monster);
         }
 
         public void Update()
@@ -271,6 +271,7 @@ namespace Server.Game
                 if (condition.Invoke(player))
                     return player;
             }
+
             return null;
         }
 

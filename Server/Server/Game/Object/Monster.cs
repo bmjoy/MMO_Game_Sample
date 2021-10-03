@@ -11,14 +11,14 @@ namespace Server.Game
         {
             ObjectType = GameObjectType.Monster;
 
-            // Temp
+            // TEMP
             Stat.Level = 1;
             Stat.Hp = 100;
             Stat.MaxHp = 100;
             Stat.Speed = 5.0f;
 
             State = CreatureState.Idle;
-        } 
+        }
 
         // FSM (Finite State Machine)
         public override void Update()
@@ -44,6 +44,7 @@ namespace Server.Game
         Player _target;
         int _searchCellDist = 10;
         int _chaseCellDist = 20;
+
         long _nextSearchTick = 0;
 
         // Idle의 상태일 때 => 주변에 플레이어가 있는지 찾아보고 추척
@@ -58,13 +59,14 @@ namespace Server.Game
             Player target = Room.FindPlayer(p =>
             {
                 Vector2Int dir = p.CellPos - CellPos;
-                return dir.cellDistFromZero < _searchCellDist;
+                return dir.cellDistFromZero <= _searchCellDist;
             });
+
 
             if (target == null)
                 return;
-            _target = target;
 
+            _target = target;
             State = CreatureState.Moving;
         }
 
@@ -77,7 +79,7 @@ namespace Server.Game
             // 스피드란 1초 동안 몇 칸을 움직일 수 있냐는 개념
             // 일단 속도가 빨라질 수록 Tick이 더 빨리 돌아야한다는 개념 정도로 이해해보자
             int moveTick = (int)(1000 / Speed);
-            _nextSearchTick = Environment.TickCount64 + moveTick;
+            _nextMoveTick = Environment.TickCount64 + moveTick;
 
             // 내가 쫓고 있는 플레이어가 다른 방으로 가게 되었을 경우
             if (_target == null || _target.Room != Room)
@@ -101,7 +103,7 @@ namespace Server.Game
             List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: false);
 
             // 갈 수 있는 길이 없다 || 너무 멀리 떨어져 있다.
-            if (path.Count < 2 || path.Count > _chaseCellDist) 
+            if (path.Count < 2 || path.Count > _chaseCellDist)
             {
                 _target = null;
                 State = CreatureState.Idle;

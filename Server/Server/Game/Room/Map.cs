@@ -49,7 +49,7 @@ namespace Server.Game
 		{
 			return new Vector2Int(a.x - b.x, a.y - b.y);
 		}
-		
+
 		public float magnitude { get { return (float)Math.Sqrt(sqrMagnitude); } }
 
 		// 두 벡터의 크기를 비교하는 경우에, 크기를 제곱한 값을 사용해서 비교할 수 있습니다.
