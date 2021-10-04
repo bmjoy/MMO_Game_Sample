@@ -48,6 +48,10 @@ class PacketHandler
 		GameObject go = Managers.Object.FindById(movePacket.ObjectId);
 		if (go == null)
 			return;
+
+		// 내 플레이어는 클라에서 담당
+		if (Managers.Object.MyPlayer.Id == movePacket.ObjectId)
+			return;
 		
 		BaseController bc = go.GetComponent<BaseController>();
 		if (bc == null)

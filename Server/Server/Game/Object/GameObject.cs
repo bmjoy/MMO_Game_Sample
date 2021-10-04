@@ -111,6 +111,9 @@ namespace Server.Game
 
 		public virtual void OnDamaged(GameObject attacker, int damage)
 		{
+			if (Room == null)
+				return;
+
 			// Max는 둘중 더 큰 숫자를 넣어준다.
 			Stat.Hp = Math.Max(Stat.Hp - damage, 0);
 
@@ -128,6 +131,9 @@ namespace Server.Game
 
 		public virtual void OnDead(GameObject attacker)
         {
+			if (Room == null)
+				return;
+
 			S_Die diePacket = new S_Die();
 			diePacket.ObjectId = Id;
 			diePacket.AttackerId = attacker.Id;
@@ -136,7 +142,7 @@ namespace Server.Game
 			// 일반적으로 죽으면 풀피 상태에서 랜덤으로 다시 리스폰 되느 경우도 있을 것이고
 			// 해당 방에서 내쫓고 재시작을 해야 다시 들어오는 경우도 있을 것이다.
 			GameRoom room = Room;
-			room.LeaveGame(Id);
+			room.Push(room.LeaveGame, Id);
 
 			Stat.Hp = Stat.MaxHp;
 			PosInfo.State = CreatureState.Idle;
@@ -144,7 +150,7 @@ namespace Server.Game
 			PosInfo.PosX = 0;
 			PosInfo.PosY = 0;
 
-			room.EnterGame(this);
+			room.Push(room.EnterGame, this);
 		}
 	}
 }

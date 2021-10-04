@@ -103,6 +103,11 @@ namespace Server.Game
 		// 해당 좌표에서 떠나는 것을 처리
 		public bool ApplyLeave(GameObject gameObject)
         {
+			if (gameObject.Room == null)
+				return false;
+			if (gameObject.Room.Map != this)
+				return false;
+
 			PositionInfo posInfo = gameObject.Info.PosInfo;
 			if (posInfo.PosX < MinX || posInfo.PosX > MaxX)
 				return false;
@@ -123,6 +128,12 @@ namespace Server.Game
 		public bool ApplyMove(GameObject gameObject, Vector2Int dest)
         {
 			ApplyLeave(gameObject);
+
+			if (gameObject.Room == null)
+				return false;
+			if (gameObject.Room.Map != this)
+				return false;
+
 			PositionInfo posInfo = gameObject.Info.PosInfo;
 
 			if (CanGo(dest, true) == false)

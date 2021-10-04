@@ -6,9 +6,25 @@ namespace Server.Game
 {
     public class JobSerializer
     {
+		// 미래에 실행해야 할 일들 보관
+		JobTimer _timer = new JobTimer();
+
+		// 당장 실행해야 할 일들 보관
 		Queue<IJob> _jobQueue = new Queue<IJob>();
 		object _lock = new object();
 		bool _flush = false;
+
+		public void PushAfter(int tickAfter, Action action) { PushAfter(tickAfter, new Job(action)); }
+		public void PushAfter<T1>(int tickAfter, Action<T1> action, T1 t1) { PushAfter(tickAfter, new Job<T1>(action, t1)); }
+		public void PushAfter<T1, T2>(int tickAfter, Action<T1, T2> action, T1 t1, T2 t2) { PushAfter(tickAfter, new Job<T1, T2>(action, t1, t2)); }
+		public void PushAfter<T1, T2, T3>(int tickAfter, Action<T1, T2, T3> action, T1 t1, T2 t2, T3 t3) { PushAfter(tickAfter, new Job<T1, T2, T3>(action, t1, t2, t3)); }
+
+		// tickAfter : 몇 틱 뒤에 실행되어야 할지
+		// IJob : 실행되길 바라는 작업
+		public void PushAfter(int tickAfter, IJob job)
+        {
+			_timer.Push(job, tickAfter);
+		}
 
 		public void Push(Action action) { Push(new Job(action)); }
 		public void Push<T1>(Action<T1> action, T1 t1) { Push(new Job<T1>(action, t1)); }
@@ -17,21 +33,16 @@ namespace Server.Game
 
 		public void Push(IJob job)
 		{
-			bool flush = false;
-
 			lock (_lock)
 			{
 				_jobQueue.Enqueue(job);
-				if (_flush == false)
-					flush = _flush = true;
 			}
-
-			if (flush)
-				Flush();
 		}
 
-		void Flush()
+		public void Flush()
 		{
+			_timer.Flush();
+
 			while (true)
 			{
 				IJob action = Pop();

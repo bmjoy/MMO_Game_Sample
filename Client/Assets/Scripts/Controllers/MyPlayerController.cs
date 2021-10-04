@@ -124,7 +124,6 @@ public class MyPlayerController : PlayerController
 		_coSkillCoolTime = null;
 	}
 
-
 	protected override void CheckUpdatedFlag()
 	{
 		if (_updated)
