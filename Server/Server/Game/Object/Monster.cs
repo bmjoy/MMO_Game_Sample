@@ -136,7 +136,7 @@ namespace Server.Game
 
         void BroadcastMove()
         {
-            // 다른 플레이어한테도 알려준다.
+            // 다른 플레이어한테도 알려준다
             S_Move movePacket = new S_Move();
             movePacket.ObjectId = Id;
             movePacket.PosInfo = PosInfo;
@@ -153,6 +153,7 @@ namespace Server.Game
                 // 유효한 타겟인지
                 if (_target == null || _target.Room != Room || _target.Hp == 0)
                 {
+                    _target = null;
                     State = CreatureState.Moving;
                     BroadcastMove();
                     return;
@@ -162,7 +163,6 @@ namespace Server.Game
                 Vector2Int dir = (_target.CellPos - CellPos);
                 int dist = dir.cellDistFromZero;
                 bool canUseSkill = (dist <= _skillRange && (dir.x == 0 || dir.y == 0));
-
                 if (canUseSkill == false)
                 {
                     State = CreatureState.Moving;

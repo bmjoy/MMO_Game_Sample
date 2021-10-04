@@ -8,7 +8,7 @@ namespace Server.Game
     public class Player : GameObject
     {
         public ClientSession Session { get; set; }
-		
+
         public Player()
         {
             ObjectType = GameObjectType.Player;
@@ -18,6 +18,7 @@ namespace Server.Game
         {
             base.OnDamaged(attacker, damage);
         }
+
 
         // PVP 때 사용
         public override void OnDead(GameObject attacker)

@@ -35,15 +35,16 @@ namespace Server.Game
 		public int y;
 
 		public Vector2Int(int x, int y) { this.x = x; this.y = y; }
+
 		public static Vector2Int up { get { return new Vector2Int(0, 1); } }
 		public static Vector2Int down { get { return new Vector2Int(0, -1); } }
 		public static Vector2Int left { get { return new Vector2Int(-1, 0); } }
 		public static Vector2Int right { get { return new Vector2Int(1, 0); } }
 
-		public static Vector2Int operator+(Vector2Int a, Vector2Int b)
-        {
+		public static Vector2Int operator +(Vector2Int a, Vector2Int b)
+		{
 			return new Vector2Int(a.x + b.x, a.y + b.y);
-        }
+		}
 
 		public static Vector2Int operator -(Vector2Int a, Vector2Int b)
 		{
@@ -72,7 +73,7 @@ namespace Server.Game
 		bool[,] _collision;
 		GameObject[,] _objects;
 
-		public bool CanGo(Vector2Int cellPos, bool checkObject = true)
+		public bool CanGo(Vector2Int cellPos, bool checkObjects = true)
 		{
 			if (cellPos.x < MinX || cellPos.x > MaxX)
 				return false;
@@ -84,11 +85,11 @@ namespace Server.Game
 			// 갈 수 있는 조건 
 			// 1. 벽이 없음
 			// 2. 플레이어가 없음
-			return !_collision[y, x] && (!checkObject || _objects[y,x] == null);
+			return !_collision[y, x] && (!checkObjects || _objects[y, x] == null);
 		}
 
 		public GameObject Find(Vector2Int cellPos)
-        {
+		{
 			if (cellPos.x < MinX || cellPos.x > MaxX)
 				return null;
 			if (cellPos.y < MinY || cellPos.y > MaxY)
@@ -102,13 +103,13 @@ namespace Server.Game
 
 		// 해당 좌표에서 떠나는 것을 처리
 		public bool ApplyLeave(GameObject gameObject)
-        {
+		{
 			if (gameObject.Room == null)
 				return false;
 			if (gameObject.Room.Map != this)
 				return false;
 
-			PositionInfo posInfo = gameObject.Info.PosInfo;
+			PositionInfo posInfo = gameObject.PosInfo;
 			if (posInfo.PosX < MinX || posInfo.PosX > MaxX)
 				return false;
 			if (posInfo.PosY < MinY || posInfo.PosY > MaxY)
@@ -134,13 +135,13 @@ namespace Server.Game
 			if (gameObject.Room.Map != this)
 				return false;
 
-			PositionInfo posInfo = gameObject.Info.PosInfo;
+			PositionInfo posInfo = gameObject.PosInfo;
 
 			if (CanGo(dest, true) == false)
 				return false;
 
 			// 목적지로 이동
-            {
+			{
 				int x = dest.x - MinX;
 				int y = MaxY - dest.y;
 				_objects[y, x] = gameObject;
@@ -151,9 +152,9 @@ namespace Server.Game
 			posInfo.PosY = dest.y;
 
 			return true;
-        }
+		}
 
-		public void LoadMap(int mapId, string pathPrefix = "../../../../../Common/MapData") 
+		public void LoadMap(int mapId, string pathPrefix = "../../../../../Common/MapData")
 		{
 			string mapName = "Map_" + mapId.ToString("000");
 

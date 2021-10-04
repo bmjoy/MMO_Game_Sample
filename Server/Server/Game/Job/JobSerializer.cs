@@ -45,11 +45,11 @@ namespace Server.Game
 
 			while (true)
 			{
-				IJob action = Pop();
-				if (action == null)
+				IJob job = Pop();
+				if (job == null)
 					return;
 
-				action.Execute();
+				job.Execute();
 			}
 		}
 

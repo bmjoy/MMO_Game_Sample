@@ -9,7 +9,7 @@ namespace Server.Game
         void Execute();
     }
 
-    class Job : IJob
+    public class Job : IJob
     {
         Action _action;
 
@@ -24,7 +24,7 @@ namespace Server.Game
         }
     }
 
-    class Job<T1> : IJob
+    public class Job<T1> : IJob
     {
         Action<T1> _action;
         T1 _t1;
@@ -41,7 +41,7 @@ namespace Server.Game
         }
     }
 
-    class Job<T1, T2> : IJob
+    public class Job<T1, T2> : IJob
     {
         Action<T1, T2> _action;
         T1 _t1;
@@ -60,7 +60,7 @@ namespace Server.Game
         }
     }
 
-    class Job<T1, T2, T3> : IJob
+    public class Job<T1, T2, T3> : IJob
     {
         Action<T1, T2, T3> _action;
         T1 _t1;

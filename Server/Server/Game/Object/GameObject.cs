@@ -27,10 +27,10 @@ namespace Server.Game
 		}
 
 		public int Hp
-        {
+		{
 			get { return Stat.Hp; }
 			set { Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp); }
-        }
+		}
 
 		public MoveDir Dir
 		{
@@ -45,10 +45,11 @@ namespace Server.Game
 		}
 
 		public GameObject()
-        {
-            Info.PosInfo = PosInfo;
+		{
+			Info.PosInfo = PosInfo;
 			Info.StatInfo = Stat;
-        }
+		}
+
 		public virtual void Update()
         {
 
@@ -60,6 +61,7 @@ namespace Server.Game
 			{
 				return new Vector2Int(PosInfo.PosX, PosInfo.PosY);
 			}
+
 			set
 			{
 				PosInfo.PosX = value.x;
@@ -69,9 +71,9 @@ namespace Server.Game
 
 		// 현재 자신이 이동하고 있는 방향의 앞 셀의 위치값은 전달
 		public Vector2Int GetFrontCellPos()
-        {
+		{
 			return GetFrontCellPos(PosInfo.MoveDir);
-        }
+		}
 
 		public Vector2Int GetFrontCellPos(MoveDir dir)
 		{
@@ -124,7 +126,7 @@ namespace Server.Game
 			Room.Broadcast(changePacket);
 
 			if (Stat.Hp <= 0)
-            {
+			{
 				OnDead(attacker);
 			}
 		}
@@ -142,7 +144,7 @@ namespace Server.Game
 			// 일반적으로 죽으면 풀피 상태에서 랜덤으로 다시 리스폰 되느 경우도 있을 것이고
 			// 해당 방에서 내쫓고 재시작을 해야 다시 들어오는 경우도 있을 것이다.
 			GameRoom room = Room;
-			room.Push(room.LeaveGame, Id);
+			room.LeaveGame(Id);
 
 			Stat.Hp = Stat.MaxHp;
 			PosInfo.State = CreatureState.Idle;
@@ -150,7 +152,7 @@ namespace Server.Game
 			PosInfo.PosX = 0;
 			PosInfo.PosY = 0;
 
-			room.Push(room.EnterGame, this);
+			room.EnterGame(this);
 		}
 	}
 }

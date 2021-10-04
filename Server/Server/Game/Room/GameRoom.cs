@@ -21,10 +21,10 @@ namespace Server.Game
         {
             Map.LoadMap(mapId);
 
-            // Temp
+            // TEMP
             Monster monster = ObjectManager.Instance.Add<Monster>();
             monster.CellPos = new Vector2Int(5, 5);
-            Push(EnterGame, monster);
+            EnterGame(monster);
         }
 
         // 누군가가 주기적으로 호출해줘야 한다.
@@ -34,6 +34,7 @@ namespace Server.Game
             {
                 monster.Update();
             }
+
             foreach (Projectile projectile in _projectiles.Values)
             {
                 projectile.Update();
@@ -41,7 +42,7 @@ namespace Server.Game
 
             Flush();
         }
-        
+
         public void EnterGame(GameObject gameObject)
         {
             if (gameObject == null)
@@ -61,26 +62,26 @@ namespace Server.Game
                 // 본인한테 정보 전송
                 {
                     S_EnterGame enterPacket = new S_EnterGame();
-                    enterPacket.Player = gameObject.Info;
+                    enterPacket.Player = player.Info;
                     player.Session.Send(enterPacket);
 
                     // 해당 방에 접속한 플레이어의 정보 전송
-                    S_Spawn spwanPacket = new S_Spawn();
+                    S_Spawn spawnPacket = new S_Spawn();
                     foreach (Player p in _players.Values)
                     {
-                        if (gameObject != p)
-                            spwanPacket.Objects.Add(p.Info);
+                        if (player != p)
+                            spawnPacket.Objects.Add(p.Info);
                     }
 
                     // 해당 방에 있는 몬스터의 정보도 보내줘야 한다.
                     // 방금 막 방에 접속한 플레이어는 몬스터 정보를 볼 수 없는 문제가 생김
                     foreach (Monster m in _monsters.Values)
-                        spwanPacket.Objects.Add(m.Info);
+                        spawnPacket.Objects.Add(m.Info);
 
                     foreach (Projectile p in _projectiles.Values)
-                        spwanPacket.Objects.Add(p.Info);
+                        spawnPacket.Objects.Add(p.Info);
 
-                    player.Session.Send(spwanPacket);
+                    player.Session.Send(spawnPacket);
                 }
             }
             else if (type == GameObjectType.Monster)
@@ -114,6 +115,7 @@ namespace Server.Game
         public void LeaveGame(int objectId)
         {
             GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
+
             if (type == GameObjectType.Player)
             {
                 Player player = null;
@@ -145,6 +147,7 @@ namespace Server.Game
                 Projectile projectile = null;
                 if (_projectiles.Remove(objectId, out projectile) == false)
                     return;
+
                 projectile.Room = null;
             }
 
@@ -185,7 +188,7 @@ namespace Server.Game
             info.PosInfo.State = movePosInfo.State;
             info.PosInfo.MoveDir = movePosInfo.MoveDir;
             Map.ApplyMove(player, new Vector2Int(movePosInfo.PosX, movePosInfo.PosY));
-             
+
             // Broadcast
             S_Move resMovePacket = new S_Move();
             resMovePacket.ObjectId = player.Info.ObjectId;
@@ -202,13 +205,14 @@ namespace Server.Game
             ObjectInfo info = player.Info;
             if (info.PosInfo.State != CreatureState.Idle)
                 return;
+
             // 통과
             info.PosInfo.State = CreatureState.Skill;
 
-            S_Skill sKill = new S_Skill() { Info = new SkillInfo() };
-            sKill.ObjectId = info.ObjectId;
-            sKill.Info.SkillId = skillPacket.Info.SkillId; // 나중에 스킬과 관련된 부분은 데이터 시트(Json, XML로 따로 관리)로 관리 해서 관리
-            Broadcast(sKill); // 스킬을 사용한다는 애니메이션을 맞추기 위한 Broadcast
+            S_Skill skill = new S_Skill() { Info = new SkillInfo() };
+            skill.ObjectId = info.ObjectId;
+            skill.Info.SkillId = skillPacket.Info.SkillId; // 나중에 스킬과 관련된 부분은 데이터 시트(Json, XML로 따로 관리)로 관리 해서 관리
+            Broadcast(skill); // 스킬을 사용한다는 애니메이션을 맞추기 위한 Broadcast
 
             Data.Skill skillData = null;
             if (DataManager.SkillDict.TryGetValue(skillPacket.Info.SkillId, out skillData) == false)
@@ -223,15 +227,14 @@ namespace Server.Game
                         GameObject target = Map.Find(skillPos);
                         if (target != null)
                         {
-                            Console.WriteLine("Hit GameObject");
+                            Console.WriteLine("Hit GameObject !");
                         }
                     }
                     break;
 
-                    // 투사체 스킬의 종류에 따라서 분기 처리를 해주는 작업을 해줘야 한다.
+                // 투사체 스킬의 종류에 따라서 분기 처리를 해주는 작업을 해줘야 한다.
                 case SkillType.SkillProjectile:
                     {
-                        // Todo : Arrow
                         Arrow arrow = ObjectManager.Instance.Add<Arrow>();
                         if (arrow == null)
                             return;
@@ -243,7 +246,6 @@ namespace Server.Game
                         arrow.PosInfo.PosX = player.PosInfo.PosX;
                         arrow.PosInfo.PosY = player.PosInfo.PosY;
                         arrow.Speed = skillData.projectile.speed;
-
                         Push(EnterGame, arrow);
                     }
                     break;

@@ -23,11 +23,11 @@ namespace Server
 		static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
 
 		static void TickRoom(GameRoom room, int tick = 100)
-        {
+		{
 			var timer = new System.Timers.Timer();
 			timer.Interval = tick;
 			// 특정 시간이 지났다면 어떤 이벤트를 실행할 것인지를 결정
-			timer.Elapsed += ((s, e) =>  room.Update());
+			timer.Elapsed += ((s, e) => { room.Update(); });
 			// 자동으로 리셋
 			timer.AutoReset = true;
 
@@ -42,7 +42,6 @@ namespace Server
 			ConfigManager.LoadConfig();
 			DataManager.LoadData();
 
-			var d = DataManager.StatDict;
 			// GameRoom 생성
 			GameRoom room = RoomManager.Instance.Add(1);
 			TickRoom(room, 50);
@@ -62,9 +61,9 @@ namespace Server
 			// Todo
 			while (true)
 			{
-				// JobTimer.Instance.Flush();
-                Thread.Sleep(100);
-            }
+				//JobTimer.Instance.Flush();
+				Thread.Sleep(100);
+			}
 		}
 	}
 }

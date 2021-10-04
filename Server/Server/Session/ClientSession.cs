@@ -18,19 +18,17 @@ namespace Server
 		// 세션에서도 현재 Session이 관리하고 있는 Player 정보와 GameRoom 정보를
 		// 들고 있다면 좀더 유용할 것
 		public Player MyPlayer { get; set; }
-
 		public int SessionId { get; set; }
 
 		public void Send(IMessage packet)
-        {
+		{
 			string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
-			MsgId msgid = (MsgId)Enum.Parse(typeof(MsgId), msgName);
+			MsgId msgId = (MsgId)Enum.Parse(typeof(MsgId), msgName);
 			ushort size = (ushort)packet.CalculateSize();
 			byte[] sendBuffer = new byte[size + 4];
 			Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
-			Array.Copy(BitConverter.GetBytes((ushort)msgid), 0, sendBuffer, 2, sizeof(ushort));
+			Array.Copy(BitConverter.GetBytes((ushort)msgId), 0, sendBuffer, 2, sizeof(ushort));
 			Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
-
 			Send(new ArraySegment<byte>(sendBuffer));
 		}
 
@@ -39,7 +37,7 @@ namespace Server
 			Console.WriteLine($"OnConnected : {endPoint}");
 
 			MyPlayer = ObjectManager.Instance.Add<Player>();
-            {
+			{
 				MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
 				MyPlayer.Info.PosInfo.State = CreatureState.Idle;
 				MyPlayer.Info.PosInfo.MoveDir = MoveDir.Down;
