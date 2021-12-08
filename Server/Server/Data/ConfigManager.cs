@@ -10,6 +10,7 @@ namespace Server.Data
     {
         // Client에서 원본 파일을 관리한다는 가정
         public string dataPath;
+        public string connectionString;
     }
     
     // 일련의 설정 파일을 관리 => 데이터 경로, 서버 동접, 포트, 접속 IP 설정 등을 관리
