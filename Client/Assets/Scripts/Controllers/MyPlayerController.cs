@@ -103,7 +103,7 @@ public class MyPlayerController : PlayerController
 			State = CreatureState.Moving;
 			return;
 		}
-		
+
 		// 스킬 상태로 갈지 확인
 		if (_coSkillCoolTime == null && Input.GetKey(KeyCode.Space))
 		{

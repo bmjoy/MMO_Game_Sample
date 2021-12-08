@@ -21,11 +21,12 @@ public class ServerSession : PacketSession
 
 		Send(new ArraySegment<byte>(sendBuffer));
 	}
-	
+
 	public override void OnConnected(EndPoint endPoint)
 	{
 		Debug.Log($"OnConnected : {endPoint}");
 
+		// OnRecvPacket 이후 패킷 데이터를 일단 PacketQueue에 저장
 		PacketManager.Instance.CustomHandler = (s, m, i) =>
 		{
 			PacketQueue.Instance.Push(i, m);
