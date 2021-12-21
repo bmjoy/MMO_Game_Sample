@@ -1,4 +1,4 @@
 {
 	"dataPath" : "../Client/Assets/Resources/Data",
-	"connectionString" : "Server=localhost;Database=master;Trusted_Connection=True;"
+	"connectionString" : "Server=localhost;Database=GameDB;Trusted_Connection=True;"
 }

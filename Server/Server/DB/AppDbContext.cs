@@ -11,12 +11,12 @@ namespace Server.DB
 
         static readonly ILoggerFactory _logger = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-        string _connectionString = @"Server=localhost;Database=master;Trusted_Connection=True;";
+        string _connectionString = @"Server=localhost;Database=GameDB;Trusted_Connection=True;";
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             options
                 .UseLoggerFactory(_logger)
-                .UseSqlServer(ConfigManager.Config.connectionString);
+                .UseSqlServer(ConfigManager.Config == null ? _connectionString : ConfigManager.Config.connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
