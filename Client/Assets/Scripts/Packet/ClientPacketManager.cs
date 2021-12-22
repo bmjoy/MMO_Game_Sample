@@ -18,7 +18,7 @@ class PacketManager
 
 	Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>> _onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>>();
 	Dictionary<ushort, Action<PacketSession, IMessage>> _handler = new Dictionary<ushort, Action<PacketSession, IMessage>>();
-
+	
 	public Action<PacketSession, IMessage, ushort> CustomHandler { get; set; }
 
 	public void Register()
