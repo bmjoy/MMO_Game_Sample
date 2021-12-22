@@ -103,4 +103,19 @@ class PacketHandler
 			cc.OnDead();
 		}
 	}
+
+	public static void S_ConnectedHandler(PacketSession session, IMessage packet)
+	{
+		Debug.Log("S_ConnectedHandler");
+		C_Login loginPacket = new C_Login();
+		// 이렇게 하면 로컬 컴퓨터에서 여러 클라로 접속을 할 때 문제가 될 수가 있다.
+		loginPacket.UniqueId = SystemInfo.deviceUniqueIdentifier;
+		Managers.Network.Send(loginPacket);
+	}
+
+	public static void S_LoginHandler(PacketSession session, IMessage packet)
+	{
+		S_Login loginPacket = (S_Login)packet;
+		Debug.Log($"LoginOk({loginPacket.LoginOk})");
+	}
 }
