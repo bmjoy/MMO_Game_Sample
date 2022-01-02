@@ -42,6 +42,7 @@ namespace Server
                     {
                         LobbyPlayerInfo lobbyPlayer = new LobbyPlayerInfo()
                         {
+                            PlayerDbId = playerDb.PlayerDbId,
                             Name = playerDb.PlayerName,
                             StatInfo = new StatInfo()
                             {
@@ -74,7 +75,10 @@ namespace Server
                 {
                     AccountDb newAccount = new AccountDb() { AccountName = loginPacket.UniqueId };
                     db.Accounts.Add(newAccount);
-                    db.SaveChanges();
+                    bool success = db.SaveChangesEx(); 
+
+                    if (success == false)
+                        return;
 
                     // AccountDbId 메모리에 기억
                     AccountDbId = findAccount.AccountDbId;
@@ -98,6 +102,7 @@ namespace Server
             
 			MyPlayer = ObjectManager.Instance.Add<Player>();
 			{
+                MyPlayer.PlayerDbId = playerInfo.PlayerDbId;
 				MyPlayer.Info.Name = playerInfo.Name;
 				MyPlayer.Info.PosInfo.State = CreatureState.Idle;
 				MyPlayer.Info.PosInfo.MoveDir = MoveDir.Down;
@@ -153,11 +158,16 @@ namespace Server
                     // 동일한 이름을 다른 player가 생성 했을 수도 있기 때문에
                     // Exception이 날 수가 있다.
                     // 따라서 여기서 에러가 날 경우 클라에게 동일한 아이디가 생성 되었다는 패킷을 보내줘야 한다.
-                    db.SaveChanges(); 
+
+                    bool success = db.SaveChangesEx(); 
+
+                    if (success == false)
+                        return;
 
                     // 메모리에 추가
                     LobbyPlayerInfo lobbyPlayer = new LobbyPlayerInfo()
                     {
+                        PlayerDbId = newPlayerDb.PlayerDbId,
                         Name = createaPacket.Name,
                         StatInfo = new StatInfo()
                         {
