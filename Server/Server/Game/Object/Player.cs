@@ -53,23 +53,8 @@ namespace Server.Game
             //  => 몬스터를 잡아서 필드 아이템 드랍, 아이템 강화 결과를 보고 싶을 경우
             //  => DB에 저장되지 않은 상태에서(즉, 인벤토리에 저장하지 않은 상태) 이후 작업을 하는 것은 매우 문제가 있다.
             // 따라서 다른 쓰레드에서 일감을 던지고 그후에 완료 되었다는 통보를 받은 후 작업을 진행해야한다.
-            using (AppDbContext db = new AppDbContext())
-            {
-                // 이렇게 하면 DB에 두번 접근을 해야한다. (find, save)
-                // PlayerDb playerDb = db.Players.Find(PlayerDbId);
-
-                // 아래와 같이 하면 Hp만 변화가 있는 것을 감지해서 SaveChange를 호출 가능
-                PlayerDb playerDb = new PlayerDb();
-                playerDb.PlayerDbId = PlayerDbId;
-                playerDb.Hp = Stat.Hp;
-
-                db.Entry(playerDb).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                db.Entry(playerDb).Property(nameof(PlayerDb.Hp)).IsModified = true;
-
-                bool success = db.SaveChangesEx(); 
-                if (success == false)
-                    return;
-            }
+            
+            DbTransaction.SavePlayerStatus_Step1(this, Room);
         }
     }
 }
