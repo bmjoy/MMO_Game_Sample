@@ -81,7 +81,7 @@ namespace Server
                         return;
 
                     // AccountDbId 메모리에 기억
-                    AccountDbId = findAccount.AccountDbId;
+                    AccountDbId = newAccount.AccountDbId;
 
                     S_Login loginOk = new S_Login() { LoginOk = 1 };
                     Send(loginOk);

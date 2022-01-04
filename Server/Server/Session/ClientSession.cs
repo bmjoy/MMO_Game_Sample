@@ -44,8 +44,6 @@ namespace Server
 				S_Connected connectedPacket = new S_Connected();
 				Send(connectedPacket);
 			}
-
-			
 		}
 
 		public override void OnRecvPacket(ArraySegment<byte> buffer)
