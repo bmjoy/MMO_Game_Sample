@@ -110,6 +110,36 @@ namespace Server
 				MyPlayer.Info.PosInfo.PosY = 0;
 				MyPlayer.Stat.MergeFrom(playerInfo.StatInfo);
 				MyPlayer.Session = this;
+
+                S_ItemList itemListPacket = new S_ItemList();
+
+                // 이 부분은 게임에 들어가기 이전 상태이다 보니 
+                // 여기서 바로 DB에 접근을 해도 크게 문제가 없는 상황
+                // PreGame은 DB 접근 안전지대와 같다.
+                
+                // Item 목록을 갖고 온다.
+                using (AppDbContext db = new AppDbContext())
+                {
+                    List<ItemDb> items = db.Items
+                        .Where(i => i.OwnerDbId == playerInfo.PlayerDbId)
+                        .ToList();
+                    // 그리고 항상 이렇게 DB에서 데이터를 긁어오는 부분은 
+                    // 혹시라도 보안 문제가 없는지 확인해야 한다.
+                    // 만약에 playerInfo를 메모리에 들고 있는 것이 아니라 
+                    // 클라에서 전달 받은 playerInfo를 사용한다면 
+                    // 클라에서 해킹한 패킷으로 처리를 할 수 있기 때문에(즉 다른 사람의 아이템을 불러올 수도 있음)
+                    // 조심해야 한다.
+                    // 하지만 지금은 메모리에서 playerInfo를 들고 있기 때문에 해킹 이슈는 없다.
+                    
+                    foreach (ItemDb itemDb in items)
+                    {
+                        // TODo 인벤토리
+                        ItemInfo info = new ItemInfo();
+                        itemListPacket.Items.Add(info);
+                    }
+                }
+                // TODO 클라한테도 아이템 목록을 전달
+                Send(itemListPacket);
 			}
 
             ServerState = PlayerServerState.ServerStateGame;
