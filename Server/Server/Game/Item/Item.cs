@@ -25,6 +25,11 @@ namespace Server.Game
             get { return Info.Count; }
             set { Info.Count = value; }
         } 
+        public int Slot
+        {
+            get { return Info.Slot; }
+            set { Info.Slot = value; }
+        }
 
         public ItemType ItemType { get; private set; }
 
@@ -67,6 +72,7 @@ namespace Server.Game
             {
                 item.ItemDbId = itemDb.ItemDbId;
                 item.Count = itemDb.Count;
+                item.Slot = itemDb.Slot;
             }
 
             return item;
@@ -81,7 +87,7 @@ namespace Server.Game
         // TemplateId에 따라 WeaponType과 Damage를 채워줘야 한다.
         public Weapon(int templateId) : base(ItemType.Weapon)
         {
-            
+            Init(templateId);
         }
 
         void Init(int templateId)
