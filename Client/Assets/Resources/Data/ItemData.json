@@ -12,5 +12,27 @@
       "weaponType" : "Bow",
       "damage": "5"
     }
+  ],
+  "armors": [
+    {
+      "id": "100",
+      "name": "뼈 값옷",
+      "weaponType" : "Armor",
+      "defence": "15"
+    },
+    {
+      "id": "101",
+      "name": "뼈 투구",
+      "weaponType" : "Helmet",
+      "defence": "5"
+    }
+  ],
+  "consumables": [
+    {
+      "id": "200",
+      "name": "HP 물약",
+      "consumableType" : "Potion",
+      "damage": "10"
+    }
   ]
 } 

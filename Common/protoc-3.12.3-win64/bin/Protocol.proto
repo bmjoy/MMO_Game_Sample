@@ -70,7 +70,7 @@ enum WeaponType {
   WEAPON_TYPE_BOW = 2;
 }
 
-enum ArmorTpye {
+enum ArmorType {
   ARMOR_TYPE_NONE = 0;
   ARMOR_TYPE_HELMET = 1;
   ARMOR_TYPE_ARMOR = 2;

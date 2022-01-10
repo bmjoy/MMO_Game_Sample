@@ -89,7 +89,7 @@ namespace Server.Data
 
 	public class ArmorData : ItemData
 	{
-		public ArmorTpye armorTpye;
+		public ArmorType armorType;
 		public int defence;
 	}
 

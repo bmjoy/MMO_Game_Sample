@@ -61,6 +61,13 @@ namespace Server
                         // 나중에 예를 들어 C_EnterGame 패킷을 통해 클라거 게임에 들어오고 싶다는 패킷을 보내게 될텐데
                         // 그때도 그 해당하는 플레이어를 내가 들고 있는 것이 맞는지 체크를 해야할 필요가 있다.
                         // 메모리에 들고 있는 것이 성능 상 좋다.
+                        // 그리고 항상 이렇게 DB에서 데이터를 긁어오는 부분은 
+                        // 혹시라도 보안 문제가 없는지 확인해야 한다.
+                        // 만약에 playerInfo를 메모리에 들고 있는 것이 아니라 
+                        // 클라에서 전달 받은 playerInfo를 사용한다면 
+                        // 클라에서 해킹한 패킷으로 처리를 할 수 있기 때문에(즉 다른 사람의 아이템을 불러올 수도 있음)
+                        // 조심해야 한다.
+                        // 하지만 지금은 메모리에서 playerInfo를 들고 있기 때문에 해킹 이슈는 없다.
                         LobbyPlayers.Add(lobbyPlayer);
 
                         // 패킷에 넣어준다.
@@ -123,19 +130,17 @@ namespace Server
                     List<ItemDb> items = db.Items
                         .Where(i => i.OwnerDbId == playerInfo.PlayerDbId)
                         .ToList();
-                    // 그리고 항상 이렇게 DB에서 데이터를 긁어오는 부분은 
-                    // 혹시라도 보안 문제가 없는지 확인해야 한다.
-                    // 만약에 playerInfo를 메모리에 들고 있는 것이 아니라 
-                    // 클라에서 전달 받은 playerInfo를 사용한다면 
-                    // 클라에서 해킹한 패킷으로 처리를 할 수 있기 때문에(즉 다른 사람의 아이템을 불러올 수도 있음)
-                    // 조심해야 한다.
-                    // 하지만 지금은 메모리에서 playerInfo를 들고 있기 때문에 해킹 이슈는 없다.
                     
                     foreach (ItemDb itemDb in items)
                     {
-                        // TODo 인벤토리
-                        ItemInfo info = new ItemInfo();
-                        itemListPacket.Items.Add(info);
+                        Item item = Item.MakeItem(itemDb);
+                        if (item != null)
+                        {
+                            MyPlayer.Inven.Add(item);
+                            ItemInfo info = new ItemInfo();
+                            info.MergeFrom(item.Info);
+                            itemListPacket.Items.Add(info);
+                        }
                     }
                 }
                 // TODO 클라한테도 아이템 목록을 전달
