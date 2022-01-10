@@ -1,4 +1,6 @@
 using System;
+using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Game;
 
 namespace Server.DB
@@ -75,5 +77,54 @@ namespace Server.DB
             System.Console.WriteLine($"Hp Saved ({hp})");
         }
 
+        // 플레이어에게 보상을 지급
+        public static void RewardPlayer(Player player, RewardData rewardData, GameRoom room)
+        {
+            if (player == null || rewardData == null || room == null)
+                return;
+
+            // ToDo : 살짝 문제가 있긴 하다.
+            int? slot = player.Inven.GetEmptySlot();
+            if (slot == null)
+                return;
+            
+            ItemDb itemDb = new ItemDb()
+            {
+                TemplateId = rewardData.itemId,
+                Count = rewardData.count,
+                Slot = slot.Value,
+                OwnerDbId = player.PlayerDbId
+            };
+
+            // You
+            Instance.Push(() => 
+            {
+                using (AppDbContext db = new AppDbContext())
+                {
+                    db.Items.Add(itemDb);
+
+                    bool success = db.SaveChangesEx(); 
+                    if (success)
+                    {
+                        // Me
+                        room.Push(() => 
+                        {
+                            Item newItem = Item.MakeItem(itemDb);
+                            player.Inven.Add(newItem);
+
+                            // Client Noti
+                            {
+                                S_AddItem itemPacket = new S_AddItem();
+                                ItemInfo itemInfo = new ItemInfo();
+                                itemInfo.MergeFrom(newItem.Info);
+                                itemPacket.Items.Add(itemInfo);
+
+                                player.Session.Send(itemPacket);
+                            }
+                        });
+                    }
+                }
+            });
+        }
     }
 }
