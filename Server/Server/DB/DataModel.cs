@@ -46,6 +46,8 @@ namespace Server.DB
         // => ex) 0~10: 내가 차고 있는 아이템, 11~50: 내가 소유하고 있는 아이템, 51~100: 창고 아이템
         public int Slot { get; set; }
 
+        public bool Equipped { get; set; }
+
         [ForeignKey("Owner")]
         public int? OwnerDbId { get; set; }
         public PlayerDb Owner { get; set; }

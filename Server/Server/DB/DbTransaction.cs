@@ -6,7 +6,7 @@ using Server.Game;
 namespace Server.DB
 {  
     // 
-    public class DbTransaction : JobSerializer
+    public partial class DbTransaction : JobSerializer
     {
         // 해당 로직을 담당하는 쓰레드를 딱 하나만 만들어서 관리 => static
         public static DbTransaction Instance { get; } = new DbTransaction();
