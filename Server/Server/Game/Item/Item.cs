@@ -47,7 +47,7 @@ namespace Server.Game
 
         public Item(ItemType itemType)
         {
-            ItemType = ItemType;
+            ItemType = itemType;
         }
 
         public static Item MakeItem(ItemDb itemDb)
