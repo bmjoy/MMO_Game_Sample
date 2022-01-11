@@ -11,6 +11,11 @@ namespace Server.Game
         public int PlayerDbId { get; set; }
         public ClientSession Session { get; set; }
         public Inventory Inven { get; private set; } = new Inventory();
+        public int WeaponDamage { get; private set; }
+        public int ArmorDefence { get; private set; }
+
+        public override int TotalAttack { get { return Stat.Attack + WeaponDamage; } }
+		public override int TotalDefence { get { return ArmorDefence; } }
 
         public Player()
         {
@@ -56,6 +61,95 @@ namespace Server.Game
             // 따라서 다른 쓰레드에서 일감을 던지고 그후에 완료 되었다는 통보를 받은 후 작업을 진행해야한다.
             
             DbTransaction.SavePlayerStatus_Step1(this, Room);
+        }
+
+        public void HandleEquipItem(C_EquipItem equipPacket)
+        {
+            Item item = Inven.Get(equipPacket.ItemDbId);
+            if (item == null)
+                return;
+            if (item.ItemType == ItemType.Consumable)
+                return;
+
+            // 착용 요청이라면, 겹치는 부위는 해제
+            if (equipPacket.Equipped)
+            {
+                // 겹치는 부위가 있어서 해지해야할 아이템이 있는지 찾아보자
+                Item unequipItem = null;
+                if (item.ItemType == ItemType.Weapon)
+                {
+                    // 현재 인벤토리에서 장착 중인 아이템 중 무기를 가지고 온다.
+                    // => 현재 장착 중인 아이템을 해지하기 위해서
+                    unequipItem = Inven.Find(i => i.Equipped && i.ItemType == ItemType.Weapon);
+                }
+                else if (item.ItemType == ItemType.Armor)
+                {
+                    // 해당 아이템이 어떤 Armor 타입인지 확인
+                    ArmorType armorType = ((Armor)item).ArmorType;
+                    // 현재 장착 중인 아이템 중, 
+                    // 아이템 타입이 Armor이고
+                    // 해당 아이템의 Armor 타입과 동일한 타입의 Armor를 가지고 온다.
+                    unequipItem = Inven.Find(
+                        i => i.Equipped 
+                        && i.ItemType == ItemType.Armor
+                        && ((Armor)i).ArmorType == armorType);
+                }
+
+                // 해지 해야할 아이템 정보를 클라에게 발송
+                if (unequipItem != null)
+                {
+                    unequipItem.Equipped = false;
+                    DbTransaction.EquipItemNoti(this, unequipItem); 
+
+                    // 클라에 통보
+                    S_EquipItem equipOkItem = new S_EquipItem();
+                    equipOkItem.ItemDbId = unequipItem.ItemDbId;
+                    equipOkItem.Equipped = unequipItem.Equipped;
+                    Session.Send(equipOkItem); 
+                }
+            }
+
+            // 새로운 아이템을 장착 하는 부분
+            {
+                // DB 연동
+                // 메모리 선 적용
+                item.Equipped = equipPacket.Equipped;
+
+                // DB에 Noti
+                // 이렇게 Noti만 날리고 잊고 살아도 된다.
+                DbTransaction.EquipItemNoti(this, item); 
+
+                // 클라에 통보
+                S_EquipItem equipOkItem = new S_EquipItem();
+                equipOkItem.ItemDbId = equipPacket.ItemDbId;
+                equipOkItem.Equipped = equipPacket.Equipped;
+                Session.Send(equipOkItem); 
+            }
+            RefreshAdditionalStat();
+        }
+        
+        public void RefreshAdditionalStat()
+        {   
+            // 변경이 필요한 Stat의 정보만 받아와서 처리하기 보다 그냥 스탯을 다시 계산을 하는 것이 속편하다.
+            // 성능상 손해를 조금 보기는 하지만 버그를 줄일 수 있는 방식이기 때문
+            WeaponDamage = 0;
+            ArmorDefence = 0;
+
+            foreach (Item item in Inven.Items.Values)
+            {
+                // 현재 아이템이 착용 중이 아니라면 스킵
+                if (item.Equipped == false)
+                    continue;
+                switch (item.ItemType)
+                {
+                    case ItemType.Weapon:
+                        WeaponDamage += ((Weapon)item).Damage;
+                        break;
+                    case ItemType.Armor:
+                        ArmorDefence += ((Armor)item).Defence;
+                        break;
+                }
+            }
         }
     }
 }

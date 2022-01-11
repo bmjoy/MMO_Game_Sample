@@ -14,24 +14,24 @@ namespace Server.Game
     // => 따라서 GameRoom 안에서 접근을 하기 때문에 하나의 쓰레드에서만 접근을 하게 된다. (lock x)
     public class Inventory
     {
-        Dictionary<int, Item> _items = new Dictionary<int, Item>();
+        public Dictionary<int, Item> Items { get; } = new Dictionary<int, Item>();
 
         public void Add(Item item)
         {
-            _items.Add(item.ItemDbId, item);
+            Items.Add(item.ItemDbId, item);
         }
 
         public Item Get(int itemDbId)
         {
             Item item = null;
-            _items.TryGetValue(itemDbId, out item);
+            Items.TryGetValue(itemDbId, out item);
 
             return item;
         }
         
         public Item Find(Func<Item, bool> condition)
         {
-            foreach (Item item in _items.Values)
+            foreach (Item item in Items.Values)
             {
                 if (condition.Invoke(item))
                     return item;
@@ -46,7 +46,7 @@ namespace Server.Game
             for (int slot = 0; slot < 20; slot++)
             {
                 // Player가 들고 있는 인벤토리의 어느 슬롯이 비어 있는지를 확인
-                Item item = _items.Values.FirstOrDefault(i => i.Slot == slot);
+                Item item = Items.Values.FirstOrDefault(i => i.Slot == slot);
                 if (item == null)
                     return slot;
             }

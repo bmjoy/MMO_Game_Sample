@@ -36,11 +36,6 @@ namespace Server.Game
                 monster.Update();
             }
 
-            foreach (Projectile projectile in _projectiles.Values)
-            {
-                projectile.Update();
-            }
-
             Flush();
         }
 
@@ -56,6 +51,10 @@ namespace Server.Game
                 Player player = gameObject as Player;
                 _players.Add(gameObject.Id, player);
                 player.Room = this;
+
+                // DB에서 가지고 온 아이템 정보를 통해서 player의 Stat 정보를 초기화
+                // 방에 입장했을 때 한번 정도 초기화를 해준다고 생각
+                player.RefreshAdditionalStat();
 
                 // 처음 접속하자마자 데미지가 안들어오는 버그 수정
                 Map.ApplyMove(player, new Vector2Int(player.CellPos.x, player.CellPos.y));
@@ -98,6 +97,8 @@ namespace Server.Game
                 Projectile projectile = gameObject as Projectile;
                 _projectiles.Add(gameObject.Id, projectile);
                 projectile.Room = this;
+
+                projectile.Update();
             }
                 
             // 타인한테 정보 전송

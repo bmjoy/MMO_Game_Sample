@@ -141,14 +141,13 @@ namespace Server
                             info.MergeFrom(item.Info);
                             itemListPacket.Items.Add(info);
                         }
-                    }
+                    } 
                 }
                 // TODO 클라한테도 아이템 목록을 전달
                 Send(itemListPacket);
 			}
 
             ServerState = PlayerServerState.ServerStateGame;
-
 			GameRoom room = RoomManager.Instance.Find(1);
 			room.Push(room.EnterGame, MyPlayer);
         }

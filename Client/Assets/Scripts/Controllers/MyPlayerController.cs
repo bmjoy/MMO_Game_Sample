@@ -7,9 +7,13 @@ using static Define;
 public class MyPlayerController : PlayerController
 {
 	bool _moveKeyPressed = false;
+	public int WeaponDamage { get; private set; }
+	public int ArmorDefence { get; private set; }
+
 	protected override void Init()
 	{
 		base.Init();
+		RefreshAdditionalStat();
 	}
     
     protected override void UpdateController()
@@ -152,6 +156,29 @@ public class MyPlayerController : PlayerController
 			movePacket.PosInfo = PosInfo;
 			Managers.Network.Send(movePacket);
 			_updated = false;
+		}
+	}
+	
+	public void RefreshAdditionalStat()
+	{   
+		// 데미지 판정은 서버에서 하는데
+		WeaponDamage = 0;
+		ArmorDefence = 0;
+
+		foreach (Item item in Managers.Inven.Items.Values)
+		{
+			// 현재 아이템이 착용 중이 아니라면 스킵
+			if (item.Equipped == false)
+				continue;
+			switch (item.ItemType)
+			{
+				case ItemType.Weapon:
+					WeaponDamage += ((Weapon)item).Damage;
+					break;
+				case ItemType.Armor:
+					ArmorDefence += ((Armor)item).Defence;
+					break;
+			}
 		}
 	}
 }
