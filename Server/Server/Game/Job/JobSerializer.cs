@@ -12,7 +12,6 @@ namespace Server.Game
 		// 당장 실행해야 할 일들 보관
 		Queue<IJob> _jobQueue = new Queue<IJob>();
 		object _lock = new object();
-		bool _flush = false;
 
 		public void PushAfter(int tickAfter, Action action) { PushAfter(tickAfter, new Job(action)); }
 		public void PushAfter<T1>(int tickAfter, Action<T1> action, T1 t1) { PushAfter(tickAfter, new Job<T1>(action, t1)); }
@@ -59,7 +58,6 @@ namespace Server.Game
 			{
 				if (_jobQueue.Count == 0)
 				{
-					_flush = false;
 					return null;
 				}
 				return _jobQueue.Dequeue();
