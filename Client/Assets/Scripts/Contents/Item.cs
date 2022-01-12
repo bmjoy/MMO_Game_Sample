@@ -44,7 +44,7 @@ public class Item
 
     public Item(ItemType itemType)
     {
-        ItemType = ItemType;
+        ItemType = itemType;
     }
 
     public static Item MakeItem(ItemInfo itemInfo)
@@ -145,7 +145,7 @@ public class Armor : Item
 public class Consumable : Item
 {
     public ConsumableType ConsumableType { get; private set; }
-    public int MaxCount { get; private set; }
+    public int MaxCount { get; set; }
 
     // TemplateId에 따라 WeaponType과 Damage를 채워줘야 한다.
     public Consumable(int templateId) : base(ItemType.Consumable)

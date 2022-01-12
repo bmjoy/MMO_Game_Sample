@@ -6,7 +6,7 @@ using static Define;
 
 public class MonsterController : CreatureController
 {
-	protected Coroutine _coSkill;
+	Coroutine _coSkill;
 
 	// [SerializeField]
 	// bool _rangedSkill = false;

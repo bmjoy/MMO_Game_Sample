@@ -14,7 +14,7 @@ namespace Data
 		public string name;
 		public float cooldown;
 		public int damage;
-		public SkillType skllType;
+		public SkillType skillType;
 		public ProjectileInfo projectile;
 	}
 
@@ -118,6 +118,7 @@ namespace Data
 #endregion
 
 #region  Monster
+	[Serializable]
 	public class MonsterData
 	{
 		public int id;

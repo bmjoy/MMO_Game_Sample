@@ -5,14 +5,14 @@
       "name": "평타",
       "cooldown": "0.5",
       "damage" : "10",
-      "skllType": "SkillAuto"
+      "skillType": "SkillAuto"
     },
     {
       "id": "2",
       "name": "화살 공격",
       "cooldown": "0.5",
       "damage" : "5",
-      "skllType" : "SkillProjectile",
+      "skillType" : "SkillProjectile",
       "projectile" : {
         "name" : "화살",
         "speed" : "20",

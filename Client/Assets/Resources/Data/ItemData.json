@@ -19,14 +19,14 @@
     {
       "id": "100",
       "name": "뼈 값옷",
-      "weaponType" : "Armor",
+      "armorType" : "Armor",
       "defence": "15",
       "iconPath" : "Textures/Item/armor"
     },
     {
       "id": "101",
       "name": "뼈 투구",
-      "weaponType" : "Helmet",
+      "armorType" : "Helmet",
       "defence": "5",
       "iconPath" : "Textures/Item/helmets"
     }
