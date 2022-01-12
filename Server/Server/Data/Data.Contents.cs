@@ -34,7 +34,7 @@ namespace Server.Data
 		public string name;
 		public float cooldown;
 		public int damage;
-		public SkillType skllType;
+		public SkillType skillType;
 		public ProjectileInfo projectile;
 	}
 

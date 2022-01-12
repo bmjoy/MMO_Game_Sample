@@ -62,7 +62,7 @@ namespace Server.Game
             if (DataManager.SkillDict.TryGetValue(skillPacket.Info.SkillId, out skillData) == false)
                 return;
 
-            switch (skillData.skllType)
+            switch (skillData.skillType)
             {
                 case SkillType.SkillAuto:
                     {

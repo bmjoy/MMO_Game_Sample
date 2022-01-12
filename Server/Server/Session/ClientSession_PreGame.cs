@@ -153,7 +153,7 @@ namespace Server
         }
 
         // Player를 생성하는 패킷 처리
-        public void HandleCreatePlayer(C_CreatePlayer createaPacket)
+        public void HandleCreatePlayer(C_CreatePlayer createPacket)
         {
             // ToDo : 이런 저런 보안 체크
             if (ServerState != PlayerServerState.ServerStateLobby)
@@ -161,7 +161,7 @@ namespace Server
             using (AppDbContext db = new AppDbContext())
             {
                 PlayerDb findPlayer = db.Players
-                    .Where(p => p.PlayerName == createaPacket.Name).FirstOrDefault();
+                    .Where(p => p.PlayerName == createPacket.Name).FirstOrDefault();
                 if (findPlayer != null)
                 {
                     // 이름이 겹친다
@@ -177,7 +177,7 @@ namespace Server
                     // DB에 플레이어를 만들어줘야 함
                     PlayerDb newPlayerDb = new PlayerDb()
                     {
-                        PlayerName = createaPacket.Name,
+                        PlayerName = createPacket.Name,
                         Level = stat.Level,
                         Hp = stat.Hp,
                         MaxHp = stat.MaxHp,
@@ -202,7 +202,7 @@ namespace Server
                     LobbyPlayerInfo lobbyPlayer = new LobbyPlayerInfo()
                     {
                         PlayerDbId = newPlayerDb.PlayerDbId,
-                        Name = createaPacket.Name,
+                        Name = createPacket.Name,
                         StatInfo = new StatInfo()
                         {
                             Level = stat.Level,

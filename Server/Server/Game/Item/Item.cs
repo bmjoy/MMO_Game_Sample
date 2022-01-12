@@ -9,7 +9,7 @@ namespace Server.Game
 {
     public class Item
     {
-        public  ItemInfo Info { get; } = new ItemInfo();
+        public ItemInfo Info { get; } = new ItemInfo();
         public int ItemDbId 
         {
             get { return Info.ItemDbId; }
@@ -148,7 +148,7 @@ namespace Server.Game
     public class Consumable : Item
     {
         public ConsumableType ConsumableType { get; private set; }
-        public int MaxCount { get; private set; }
+        public int MaxCount { get; set; }
 
         // TemplateId에 따라 WeaponType과 Damage를 채워줘야 한다.
         public Consumable(int templateId) : base(ItemType.Consumable)
