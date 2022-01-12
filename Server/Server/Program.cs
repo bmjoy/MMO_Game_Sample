@@ -23,7 +23,7 @@ namespace Server
 
 		// 현재 돌고 있는 타이머들을 보관
 		static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
-
+		
 		static void TickRoom(GameRoom room, int tick = 100)
 		{
 			var timer = new System.Timers.Timer();

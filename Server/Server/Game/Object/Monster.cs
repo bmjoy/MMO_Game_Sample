@@ -26,6 +26,8 @@ namespace Server.Game
             State = CreatureState.Idle;
         }
 
+        IJob _job;
+
         // FSM (Finite State Machine)
         public override void Update()
         {
@@ -44,6 +46,10 @@ namespace Server.Game
                     UpdateDead();
                     break;
             }
+
+            // 5프레임으로 (0.2초마다 한번씩 업데이트)
+            if (Room != null)
+                _job = Room.PushAfter(200, Update);
         }
 
         // 이렇게 참조로 저장을 해도 되고 id를 통해 매 틱마다 찾아도 된다.
@@ -56,11 +62,6 @@ namespace Server.Game
         // Idle의 상태일 때 => 주변에 플레이어가 있는지 찾아보고 추척
         protected virtual void UpdateIdle()
         {
-            // 1초마다 한번식 체크
-            if (_nextSearchTick > Environment.TickCount64)
-                return;
-            _nextSearchTick = Environment.TickCount64 + 1000;
-
             // Player의 위치가 몬스터의 위치랑 비교적 비슷한 곳에 있는지 여부를 체크
             Player target = Room.FindPlayer(p =>
             {
@@ -216,6 +217,13 @@ namespace Server.Game
 
         public override void OnDead(GameObject attacker)
         {
+            // 몬스터가 죽은 다음에 이후에 처리해야할 일감을 취소해주는 방식
+            if (_job != null)
+            {
+                _job.Cancle = true;
+                _job = null;
+            }
+            
             base.OnDead(attacker);
 
             GameObject owner = attacker.GetOwner();
@@ -230,6 +238,8 @@ namespace Server.Game
                     // player.Inven.Add();
                 }
             }
+
+           
         }
 
         RewardData GetRandomReward()
