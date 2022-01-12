@@ -32,6 +32,40 @@ public class MyPlayerController : PlayerController
 		base.UpdateController();
 	}
 
+    protected override void UpdateIdle()
+	{
+		// 이동 상태로 갈지 확인
+		if (_moveKeyPressed)
+		{
+			State = CreatureState.Moving;
+			return;
+		}
+
+		// 스킬 상태로 갈지 확인
+		if (_coSkillCoolTime == null && Input.GetKey(KeyCode.Space))
+		{
+			Debug.Log("Skill");
+
+			// 쿨타임 관리
+			C_Skill skill = new C_Skill() { Info = new SkillInfo() };
+			skill.Info.SkillId = 2;
+			Managers.Network.Send(skill);
+			_coSkillCoolTime = StartCoroutine("CoInputCoolTime", 0.2f);
+		}
+	}
+
+	Coroutine _coSkillCoolTime;
+	IEnumerator CoInputCoolTime(float time)
+	{
+		yield return new WaitForSeconds(time);
+		_coSkillCoolTime = null;
+	}
+
+    void LateUpdate()
+	{
+		Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
+	}
+	
 	void GetUIKeyInput()
 	{
 		if (Input.GetKeyDown(KeyCode.I))
@@ -129,39 +163,8 @@ public class MyPlayerController : PlayerController
 		CheckUpdatedFlag();
 	}
 
-    void LateUpdate()
-	{
-		Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
-	}
+
     
-    protected override void UpdateIdle()
-	{
-		// 이동 상태로 갈지 확인
-		if (_moveKeyPressed)
-		{
-			State = CreatureState.Moving;
-			return;
-		}
-
-		// 스킬 상태로 갈지 확인
-		if (_coSkillCoolTime == null && Input.GetKey(KeyCode.Space))
-		{
-			Debug.Log("Skill");
-
-			// 쿨타임 관리
-			C_Skill skill = new C_Skill() { Info = new SkillInfo() };
-			skill.Info.SkillId = 2;
-			Managers.Network.Send(skill);
-			_coSkillCoolTime = StartCoroutine("CoInputCoolTime", 0.2f);
-		}
-	}
-
-	Coroutine _coSkillCoolTime;
-	IEnumerator CoInputCoolTime(float time)
-	{
-		yield return new WaitForSeconds(time);
-		_coSkillCoolTime = null;
-	}
 
 	protected override void CheckUpdatedFlag()
 	{
