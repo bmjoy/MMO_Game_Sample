@@ -223,7 +223,7 @@ namespace Server.Game
                 _job.Cancle = true;
                 _job = null;
             }
-            
+
             base.OnDead(attacker);
 
             GameObject owner = attacker.GetOwner();
@@ -238,8 +238,6 @@ namespace Server.Game
                     // player.Inven.Add();
                 }
             }
-
-           
         }
 
         RewardData GetRandomReward()

@@ -17,36 +17,59 @@ using System.Linq;
 
 namespace Server
 {
+	// 현재 관리 중이 쓰레드 리스트
+
+	// 1. Recv (N개)		=> 고객에게 주문을 받는 직원
+	// 2. GameLogic (1개)	=> 요리를 하는 직원
+	// 3. Send (1개)		=> 요리사에게 주문을 전달하는 직원
+	// 4. DB (1개)			=> 결제를 하는 직원
+
 	class Program
 	{
 		static Listener _listener = new Listener();
-
-		// 현재 돌고 있는 타이머들을 보관
-		static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
-		
-		static void TickRoom(GameRoom room, int tick = 100)
+		static void GameLogicTask()
 		{
-			var timer = new System.Timers.Timer();
-			timer.Interval = tick;
-			// 특정 시간이 지났다면 어떤 이벤트를 실행할 것인지를 결정
-			timer.Elapsed += ((s, e) => { room.Update(); });
-			// 자동으로 리셋
-			timer.AutoReset = true;
+			while (true)
+			{
+				GameLogic.Instance.Update();
+				Thread.Sleep(0);
+			}
+		}
 
-			// Enabled이 true가 되면 시작
-			timer.Enabled = true;
+		static void DbTask()
+		{
+			while (true)
+			{
+				// DbTransaction.Flush를 실행하게 되면 
+				// 내부에서 while문을 돌면서 일감이 없을 때까지 계속 처리를 하다가
+				// 일감이 없을 때 DbTransaction.Flush() 처리가 끝나게 되고
+				// Thread.Sleep(0)를 해줌으로써 제어권을 커널에 잠시 넘기는 방식을 사용해보자.
+				// 이렇게 하면 Cpu가 너무 과하게 일을 하는 것을 우회할 수 있게 된다.
+				DbTransaction.Instance.Flush();
+				Thread.Sleep(0);
+			}
+		}
 
-			_timers.Add(timer);
+		static void NetworkTask()
+		{
+			while (true)
+			{
+				List<ClientSession> sessions = SessionManager.Instance.GetClientSessions();
+				foreach (ClientSession session in sessions)
+				{
+					session.FlushSend();
+				}
+				Thread.Sleep(0);
+			}
 		}
 
 		static void Main(string[] args)
 		{
 			ConfigManager.LoadConfig();
 			DataManager.LoadData();
-			
+
 			// GameRoom 생성
-			GameRoom room = RoomManager.Instance.Add(1);
-			TickRoom(room, 50);
+			GameLogic.Instance.Push(() => { GameRoom room = GameLogic.Instance.Add(1); });
 
 			// DNS (Domain Name System)
 			string host = Dns.GetHostName();
@@ -57,15 +80,21 @@ namespace Server
 			_listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
 			Console.WriteLine("Listening...");
 
-			//FlushRoom();
-			//JobTimer.Instance.Push(FlushRoom);
-
-			// Todo
-			while (true)
+			// GameLogic을 처리하는 일꾼
 			{
-				//JobTimer.Instance.Flush();
-				DbTransaction.Instance.Flush();
+				// GameLogic을 처리하는 직원을 채용한 다음에 처리하는 방식으로
+				Task gameLogic = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
+				gameLogic.Start();
 			}
+
+			// Network 일감을 처리하는 일꾼
+			{
+				Task networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
+				networkTask.Start();
+			}
+
+			// 메인 쓰레드도 일을 해야하니깐 이렇게 Db 처리를 하는 식으로 작업을 해보자			
+			DbTask();
 		}
 	}
 }

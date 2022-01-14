@@ -4,12 +4,23 @@ using System.Text;
 
 namespace Server.Game
 {
-    public class RoomManager
+    // GameRoom의 Update를 처리하는 것이 아니라 GameLogic의 Update를 처리할 예정
+    public class GameLogic : JobSerializer
     {
-        public static RoomManager Instance { get; } = new RoomManager();
-        object _lock = new object();
+        public static GameLogic Instance { get; } = new GameLogic();
         Dictionary<int, GameRoom> _rooms = new Dictionary<int, GameRoom>();
         int _roomId = 1;
+
+        // GameRoom을 돌면서 Update를 실행
+        public void Update()
+        {
+            Flush();
+
+            foreach (GameRoom room in _rooms.Values)
+            {
+                room.Update();
+            }
+        }
 
         public GameRoom Add(int mapId)
         {
@@ -20,33 +31,24 @@ namespace Server.Game
 
             // atomic하게 lock을 잡고 작업이 진행되기 때문에
             // roomId가 중복해서 증가되는 일은 없을 것이다.
-            lock (_lock)
-            {
-                gameRoom.RoomId = _roomId;
-                _rooms.Add(_roomId, gameRoom);
-                _roomId++;
-            }
+            gameRoom.RoomId = _roomId;
+            _rooms.Add(_roomId, gameRoom);
+            _roomId++;
             return gameRoom;
         }
 
         public bool Remove(int roomId)
         {
-            lock (_lock)
-            {
-                return _rooms.Remove(roomId);
-            }
+            return _rooms.Remove(roomId);
         }
 
         public GameRoom Find(int roomId)
         {
-            lock (_lock)
-            {
-                GameRoom room = null;
-                if (_rooms.TryGetValue(roomId, out room))
-                    return room;
+            GameRoom room = null;
+            if (_rooms.TryGetValue(roomId, out room))
+                return room;
 
-                return null;
-            }
+            return null;
         }
     }
 }
