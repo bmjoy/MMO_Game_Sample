@@ -83,18 +83,22 @@ namespace Server
 			// GameLogic을 처리하는 일꾼
 			{
 				// GameLogic을 처리하는 직원을 채용한 다음에 처리하는 방식으로
-				Task gameLogic = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
-				gameLogic.Start();
+				// Thread에 이름을 할당해주면 디버깅을 할 때 조금 더 편리하다.
+				Thread t = new Thread(DbTask);
+				t.Name = "DB";
+				t.Start();
 			}
 
 			// Network 일감을 처리하는 일꾼
 			{
-				Task networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
-				networkTask.Start();
+				Thread t = new Thread(NetworkTask);
+				t.Name = "Network";
+				t.Start();
 			}
 
-			// 메인 쓰레드도 일을 해야하니깐 이렇게 Db 처리를 하는 식으로 작업을 해보자			
-			DbTask();
+			// GameLogic을 처리하는 부분은 main Thread에서 담당시켜주자			
+			Thread.CurrentThread.Name ="GameLogic";
+			GameLogicTask();
 		}
 	}
 }

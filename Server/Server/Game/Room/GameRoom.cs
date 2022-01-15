@@ -183,7 +183,5 @@ namespace Server.Game
                 p.Session.Send(packet);
             }
         }
-
-        
     }
 }
