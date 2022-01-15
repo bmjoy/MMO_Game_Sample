@@ -125,7 +125,7 @@ namespace Server.Game
 			S_ChangeHp changePacket = new S_ChangeHp();
 			changePacket.ObjectId = Id;
 			changePacket.Hp = Stat.Hp;
-			Room.Broadcast(changePacket);
+			Room.Broadcast(attacker.CellPos, changePacket);
 
 			if (Stat.Hp <= 0)
 			{
@@ -141,7 +141,7 @@ namespace Server.Game
 			S_Die diePacket = new S_Die();
 			diePacket.ObjectId = Id;
 			diePacket.AttackerId = attacker.Id;
-			Room.Broadcast(diePacket);
+			Room.Broadcast(CellPos, diePacket);
 
 			// 일반적으로 죽으면 풀피 상태에서 랜덤으로 다시 리스폰 되느 경우도 있을 것이고
 			// 해당 방에서 내쫓고 재시작을 해야 다시 들어오는 경우도 있을 것이다.

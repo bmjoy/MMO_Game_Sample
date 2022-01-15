@@ -38,7 +38,7 @@ namespace Server.Game
             resMovePacket.ObjectId = player.Info.ObjectId;
             resMovePacket.PosInfo = movePacket.PosInfo;
 
-            Broadcast(resMovePacket);
+            Broadcast(player.CellPos, resMovePacket);
         }
 
         public void HandleSkill(Player player, C_Skill skillPacket)
@@ -56,7 +56,7 @@ namespace Server.Game
             S_Skill skill = new S_Skill() { Info = new SkillInfo() };
             skill.ObjectId = info.ObjectId;
             skill.Info.SkillId = skillPacket.Info.SkillId; // 나중에 스킬과 관련된 부분은 데이터 시트(Json, XML로 따로 관리)로 관리 해서 관리
-            Broadcast(skill); // 스킬을 사용한다는 애니메이션을 맞추기 위한 Broadcast
+            Broadcast(player.CellPos, skill); // 스킬을 사용한다는 애니메이션을 맞추기 위한 Broadcast
 
             Data.Skill skillData = null;
             if (DataManager.SkillDict.TryGetValue(skillPacket.Info.SkillId, out skillData) == false)
