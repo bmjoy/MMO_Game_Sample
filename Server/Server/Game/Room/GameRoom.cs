@@ -9,6 +9,7 @@ namespace Server.Game
 {
     public partial class GameRoom : JobSerializer
     {
+        public const int VisionCells = 5;
         public int RoomId { get; set; }
 
         // 경우에 따라서 Dic로 관리 => int, Player => playerID에 해당하는 정보를 맵핑
@@ -101,23 +102,8 @@ namespace Server.Game
                     enterPacket.Player = player.Info;
                     player.Session.Send(enterPacket);
 
-                    // 해당 방에 접속한 플레이어의 정보 전송
-                    S_Spawn spawnPacket = new S_Spawn();
-                    foreach (Player p in _players.Values)
-                    {
-                        if (player != p)
-                            spawnPacket.Objects.Add(p.Info);
-                    }
-
-                    // 해당 방에 있는 몬스터의 정보도 보내줘야 한다.
-                    // 방금 막 방에 접속한 플레이어는 몬스터 정보를 볼 수 없는 문제가 생김
-                    foreach (Monster m in _monsters.Values)
-                        spawnPacket.Objects.Add(m.Info);
-
-                    foreach (Projectile p in _projectiles.Values)
-                        spawnPacket.Objects.Add(p.Info);
-
-                    player.Session.Send(spawnPacket);
+                    // 내 시야각에 있는 object 정보만 전송
+                    player.Vision.Update();
                 }
             }
             else if (type == GameObjectType.Monster)
@@ -125,7 +111,7 @@ namespace Server.Game
                 Monster monster = gameObject as Monster;
                 _monsters.Add(gameObject.Id, monster);
                 monster.Room = this;
-
+                GetZone(monster.CellPos).Monsters.Add(monster);
                 Map.ApplyMove(monster, new Vector2Int(monster.CellPos.x, monster.CellPos.y));
                 monster.Update();
             }
@@ -134,20 +120,8 @@ namespace Server.Game
                 Projectile projectile = gameObject as Projectile;
                 _projectiles.Add(gameObject.Id, projectile);
                 projectile.Room = this;
-
+                GetZone(projectile.CellPos).Projectiles.Add(projectile);
                 projectile.Update();
-            }
-                
-            // 타인한테 정보 전송
-            {
-                S_Spawn spawnPacket = new S_Spawn();
-                spawnPacket.Objects.Add(gameObject.Info);
-                foreach (Player p in _players.Values)
-                {
-                    // 자신을 제외한 모두에게 발송
-                    if (p.Id != gameObject.Id)
-                        p.Session.Send(spawnPacket);
-                }
             }
         }
 
@@ -179,7 +153,7 @@ namespace Server.Game
                 Monster monster = null;
                 if (_monsters.Remove(objectId, out monster) == false)
                     return;
-
+                GetZone(monster.CellPos).Monsters.Remove(monster);
                 Map.ApplyLeave(monster);
                 monster.Room = null;
             }
@@ -188,20 +162,8 @@ namespace Server.Game
                 Projectile projectile = null;
                 if (_projectiles.Remove(objectId, out projectile) == false)
                     return;
-
+                GetZone(projectile.CellPos).Projectiles.Remove(projectile);
                 projectile.Room = null;
-            }
-
-            // 타인한테 정보 전송
-            {
-                // 다른 플레이어가 나갔다면 DESPWAN을 해줘야 한다.
-                S_Despawn despawnPacket = new S_Despawn();
-                despawnPacket.ObjectIds.Add(objectId);
-                foreach (Player p in _players.Values)
-                {
-                    if (p.Id != objectId)
-                        p.Session.Send(despawnPacket);
-                }
             }
         }
         
@@ -223,6 +185,14 @@ namespace Server.Game
             
             foreach (Player p in zones.SelectMany(z => z.Players))
             {
+                int dx = p.CellPos.x - pos.x;
+                int dy = p.CellPos.y - pos.y;
+                // 자신과 대상의 거리가 VisionCells보다 크면 => 범위에서 벗어나면 제외 
+                if (Math.Abs(dx) > GameRoom.VisionCells)
+                    continue;
+                if (Math.Abs(dy) > GameRoom.VisionCells)
+                    continue;
+                
                 p.Session.Send(packet);
             }
         }
@@ -230,7 +200,7 @@ namespace Server.Game
         // Broadcasting을 할 때 인접한 Zone에 있는지 체크
         // 현재 위치를 기준으로 1, 2, 3, 4 분면에 있는 Zone의 위치를 전달
         // 보통은 1개의 Zone을 전달하겠지만 경계선에 있다면 2개 이상의 Zone을 전달
-        public List<Zone> GetAdjacentZones(Vector2Int cellPos, int cells = 5)
+        public List<Zone> GetAdjacentZones(Vector2Int cellPos, int cells = GameRoom.VisionCells)
         {
             HashSet<Zone> zones = new HashSet<Zone>();
 

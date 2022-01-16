@@ -7,7 +7,7 @@ using Server.DB;
 
 namespace Server.Game
 {
-    class Monster : GameObject
+    public class Monster : GameObject
     {
         public int TemplateId { get; private set; }
         public Monster()
