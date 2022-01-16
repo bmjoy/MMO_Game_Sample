@@ -31,6 +31,24 @@ namespace Server.Game
             IndexX = x;
         }
 
+        public void Remove(GameObject gameObject)
+        {
+            GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
+
+            switch (type)
+            {
+                case GameObjectType.Player:
+                    Players.Remove((Player)gameObject);
+                    break;
+                case GameObjectType.Monster:
+                    Monsters.Remove((Monster)gameObject);
+                    break;        
+                case GameObjectType.Projectile:
+                    Projectiles.Remove((Projectile)gameObject);
+                    break;
+            }
+        }
+
         public Player FindOnePlayer(Func<Player, bool> condition)
         {
             foreach (Player player in Players)

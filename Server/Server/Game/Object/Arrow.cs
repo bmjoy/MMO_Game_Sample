@@ -21,16 +21,13 @@ namespace Server.Game
             
             // 앞으로 이동하는 연산
             Vector2Int destPos = GetFrontCellPos(); 
-            if (Room.Map.CanGo(destPos))
+            if (Room.Map.ApplyMove(this, destPos, collision: false))
             {
-                CellPos = destPos;
-
                 S_Move movePacket = new S_Move();
                 movePacket.ObjectId = Id;
                 movePacket.PosInfo = PosInfo;
+                
                 Room.Broadcast(CellPos ,movePacket);
-
-                Console.WriteLine("Move Arrow");
             }
             else
             {

@@ -142,6 +142,10 @@ namespace Server.Game
 			if (posInfo.PosY < MinY || posInfo.PosY > MaxY)
 				return false;
 
+			// Zone
+			Zone zone = gameObject.Room.GetZone(gameObject.CellPos);
+			zone.Remove(gameObject);
+
 			// 기존에 있던 위치 null로 변경
 			{
 				int x = posInfo.PosX - MinX;
@@ -153,10 +157,8 @@ namespace Server.Game
 			return true;
 		}
 
-		public bool ApplyMove(GameObject gameObject, Vector2Int dest)
+		public bool ApplyMove(GameObject gameObject, Vector2Int dest, bool checkObjects = true, bool collision = true)
         {
-			ApplyLeave(gameObject);
-
 			if (gameObject.Room == null)
 				return false;
 			if (gameObject.Room.Map != this)
@@ -164,15 +166,27 @@ namespace Server.Game
 
 			PositionInfo posInfo = gameObject.PosInfo;
 
-			if (CanGo(dest, true) == false)
+			if (CanGo(dest, checkObjects) == false)
 				return false;
 
 			// 목적지로 이동
+			if (collision)
 			{
-				int x = dest.x - MinX;
-				int y = MaxY - dest.y;
-				_objects[y, x] = gameObject;
+				// 기존에 있던 위치 null로 변경
+				{
+					int x = posInfo.PosX - MinX;
+					int y = MaxY - posInfo.PosY;
+					if (_objects[y, x] == gameObject)
+						_objects[y, x] = null;
+				}
+				// 현재 좌표에 추가
+				{
+					int x = dest.x - MinX;
+					int y = MaxY - dest.y;
+					_objects[y, x] = gameObject;
+				}
 			}
+			// Zone
             GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
 			if (type == GameObjectType.Player)
 			{
