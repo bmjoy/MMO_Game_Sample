@@ -63,12 +63,7 @@ namespace Server.Game
         protected virtual void UpdateIdle()
         {
             // Player의 위치가 몬스터의 위치랑 비교적 비슷한 곳에 있는지 여부를 체크
-            Player target = Room.FindPlayer(p =>
-            {
-                Vector2Int dir = p.CellPos - CellPos;
-                return dir.cellDistFromZero <= _searchCellDist;
-            });
-
+            Player target = Room.FindClosestPlayer(CellPos, _searchCellDist);
 
             if (target == null)
                 return;
