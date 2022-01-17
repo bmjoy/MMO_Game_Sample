@@ -24,12 +24,12 @@ public class ServerSession : PacketSession
 
 	public override void OnConnected(EndPoint endPoint)
 	{
-		System.Console.WriteLine($"OnConnected : {endPoint}");
+		// System.Console.WriteLine($"OnConnected : {endPoint}");
 	}
 
 	public override void OnDisconnected(EndPoint endPoint)
 	{
-		System.Console.WriteLine($"OnDisconnected : {endPoint}");
+		// System.Console.WriteLine($"OnDisconnected : {endPoint}");
 	}
 
 	public override void OnRecvPacket(ArraySegment<byte> buffer)

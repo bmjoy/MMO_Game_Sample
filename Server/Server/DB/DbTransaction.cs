@@ -37,7 +37,6 @@ namespace Server.DB
                     if (success)
                     {
                         // Me
-                        room.Push(()=> System.Console.WriteLine($"Hp Saved ({playerDb.Hp})"));
                     }
                 }
             });
@@ -74,7 +73,7 @@ namespace Server.DB
         
         public static void SavePlayerStatus_Step3(int hp)
         {
-            System.Console.WriteLine($"Hp Saved ({hp})");
+            
         }
 
         // 플레이어에게 보상을 지급

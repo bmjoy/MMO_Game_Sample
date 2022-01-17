@@ -31,7 +31,7 @@ namespace DummyClient.Session
             lock (_lock)
             {
                 _sessions.Remove(session);
-                Console.WriteLine($"Disconnected ({_sessions.Count}) Players");
+                Console.WriteLine($"Connected ({_sessions.Count}) Players");
             }
         }
     }

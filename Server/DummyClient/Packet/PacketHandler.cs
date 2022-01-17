@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 class PacketHandler
 {
+	// Step 4
 	public static void S_EnterGameHandler(PacketSession session, IMessage packet)
 	{
 		S_EnterGame enterGamePacket = packet as S_EnterGame;
@@ -44,19 +45,54 @@ class PacketHandler
 		S_Die diePacket = packet as S_Die;
 	}
 
+	// Step 1
 	public static void S_ConnectedHandler(PacketSession session, IMessage packet)
 	{
 		C_Login loginPacket = new C_Login();
+		ServerSession serverSession = (ServerSession)session;
+		// 이렇게 하면 로컬 컴퓨터에서 여러 클라로 접속을 할 때 문제가 될 수가 있다.
+		loginPacket.UniqueId = $"DummyClient_{serverSession.DummyId.ToString("0000")}";
+		serverSession.Send(loginPacket);
 	}
 
+	// Step 2
 	public static void S_LoginHandler(PacketSession session, IMessage packet)
 	{
 		S_Login loginPacket = (S_Login)packet;
+		ServerSession serverSession = (ServerSession)session;
+
+		if (loginPacket.Players == null || loginPacket.Players.Count == 0)
+		{
+			C_CreatePlayer createPacket = new C_CreatePlayer();
+			createPacket.Name = $"Player_{serverSession.DummyId.ToString("0000")}";
+			serverSession.Send(createPacket);
+		}
+		else
+		{
+			// 무조건 첫 번째 캐릭터로 로그인
+			LobbyPlayerInfo info = loginPacket.Players[0];
+			C_EnterGame enterGamePacket = new C_EnterGame();
+			enterGamePacket.Name = info.Name;
+			serverSession.Send(enterGamePacket);
+		}
 	}
 
+	// Step 3
 	public static void S_CreatePlayerHandler(PacketSession session, IMessage packet)
 	{
 		S_CreatePlayer createOkPacket = (S_CreatePlayer)packet;
+		ServerSession serverSession = (ServerSession)session;
+		
+		if (createOkPacket.Player == null)
+		{
+			// 이름이 중복될 일이 없으니 생략
+		}
+		else
+		{
+			C_EnterGame enterGamePacket = new C_EnterGame();
+			enterGamePacket.Name = createOkPacket.Player.Name;
+			serverSession.Send(enterGamePacket);
+		}
 	}
 
 	public static void S_ItemListHandler(PacketSession session, IMessage packet)
