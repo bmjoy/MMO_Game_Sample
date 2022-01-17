@@ -24,6 +24,32 @@ namespace Server
 		object _lock = new object();
 		List<ArraySegment<byte>> _reserveQueue = new List<ArraySegment<byte>>();
 
+		long _pingpongTick = 0;
+		public void Ping()
+		{
+			if (_pingpongTick > 0)
+			{
+				long delta = (System.Environment.TickCount64 - _pingpongTick);
+				// Ping을 보내고 Pong이 안온지 30초가 지났을 때
+				if (delta > 30 * 1000)
+				{
+					System.Console.WriteLine("Disconnected by PingCheck");
+					Disconnect();
+					return;
+				}
+			}
+			
+			S_Ping pingPacket = new S_Ping();
+			Send(pingPacket);
+
+			GameLogic.Instance.PushAfter(5000, Ping);
+		}
+		
+		public void HandPong()
+		{
+			_pingpongTick = System.Environment.TickCount64;
+		}
+
 		#region Network
 		public void Send(IMessage packet)
 		{
@@ -66,6 +92,8 @@ namespace Server
 				S_Connected connectedPacket = new S_Connected();
 				Send(connectedPacket);
 			}
+
+			GameLogic.Instance.PushAfter(5000, Ping);
 		}
 
 		public override void OnRecvPacket(ArraySegment<byte> buffer)
@@ -77,6 +105,8 @@ namespace Server
 		{
 			GameLogic.Instance.Push(() => 
 			{
+				if (MyPlayer == null)
+					return;
 				GameRoom room = GameLogic.Instance.Find(1);
 				room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
 			});

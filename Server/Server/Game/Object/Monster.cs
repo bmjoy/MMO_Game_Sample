@@ -110,7 +110,7 @@ namespace Server.Game
             }
 
             // checkObjects: false => 길을 찾을 때 주변에 플레이어나 몬스터는 무시하고 찾는 방식을 사용
-            List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: false);
+            List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: true);
 
             // 갈 수 있는 길이 없다 || 너무 멀리 떨어져 있다.
             if (path.Count < 2 || path.Count > _chaseCellDist)

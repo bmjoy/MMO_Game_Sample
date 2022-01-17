@@ -108,8 +108,10 @@ class PacketHandler
 	{
 		Debug.Log("S_ConnectedHandler");
 		C_Login loginPacket = new C_Login();
+
+		string path = Application.dataPath;
 		// 이렇게 하면 로컬 컴퓨터에서 여러 클라로 접속을 할 때 문제가 될 수가 있다.
-		loginPacket.UniqueId = SystemInfo.deviceUniqueIdentifier;
+		loginPacket.UniqueId = path.GetHashCode().ToString();
 		Managers.Network.Send(loginPacket);
 	}
 
@@ -217,5 +219,12 @@ class PacketHandler
 		S_ChangeStat itemList = (S_ChangeStat)packet;
 
 		// ToDo
+	}
+
+	public static void S_PingHandler(PacketSession session, IMessage packet)
+	{
+		C_Pong pongPacket = new C_Pong();
+		Debug.Log("[Server] PingCheck");
+		Managers.Network.Send(pongPacket);
 	}
 }

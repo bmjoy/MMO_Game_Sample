@@ -266,8 +266,9 @@ namespace Server.Game
 		int[] _cost = new int[] { 10, 10, 10, 10 };
 
 		// checkObject => 길을 찾는 도중에 오브젝트를 체크할지를 결정
-		// checkObjects == true => 다른 오브젝트까지 다 충돌 판정을 할 때 고려를 할 것이고 그게 아니라면 기본적인 벽만 체크를 하겠다.
-		public List<Vector2Int> FindPath(Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true)
+		// checkObjects == true => 다른 오브젝트까지 다 충돌 판정을 할 때 고려, 길을 찾을 때 object가 있다면 피해서 길을 찾음
+		// checkObjects == false => 오직 벽만 체크, 길을 찾을 때 Object가 있는 지 여부를 고려하지 않고 그냥 길을 찾음
+		public List<Vector2Int> FindPath(Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true, int maxDist = 10)
 		{
 			List<Pos> path = new List<Pos>();
 
@@ -320,6 +321,9 @@ namespace Server.Game
 				{
 					Pos next = new Pos(node.Y + _deltaY[i], node.X + _deltaX[i]);
 
+					// 너무 멀면 스킵
+					if (Math.Abs(pos.Y - next.Y) + Math.Abs(pos.X - next.X) > maxDist)
+						continue;
 					// 유효 범위를 벗어났으면 스킵
 					// 벽으로 막혀서 갈 수 없으면 스킵
 					if (next.Y != dest.Y || next.X != dest.X)
@@ -361,15 +365,37 @@ namespace Server.Game
 		List<Vector2Int> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest)
 		{
 			List<Vector2Int> cells = new List<Vector2Int>();
-
-			Pos pos = dest;
-			while (parent[pos] != pos)
+			
+			// 목적지까지 길이 없는 경우 
+			// 그 와중에 가장 우수한 경로를 목적지로 변경
+			if (parent.ContainsKey(dest) == false)
 			{
-				cells.Add(Pos2Cell(pos));
-				pos = parent[pos];
+				Pos best = new Pos();
+				int bestDist = Int32.MaxValue;
+				foreach (Pos pos in parent.Keys)
+				{
+					int dist = Math.Abs(dest.X - pos.X) + Math.Abs(dest.Y - pos.Y);
+
+					// 제일 우수한 후보를 뽑는다.
+					if (dist < bestDist)
+					{
+						best = pos;
+						bestDist = dist;
+					}
+				}
+				dest = best;
 			}
-			cells.Add(Pos2Cell(pos));
-			cells.Reverse();
+			// 목적지까지 길이 있는 경우
+			{
+				Pos pos = dest;
+				while (parent[pos] != pos)
+				{
+					cells.Add(Pos2Cell(pos));
+					pos = parent[pos];
+				}
+				cells.Add(Pos2Cell(pos));
+				cells.Reverse();
+			}
 
 			return cells;
 		}
