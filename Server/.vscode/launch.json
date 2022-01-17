@@ -16,9 +16,29 @@
             "stopAtEntry": false
         },
         {
+            "name": "DummyClient",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/DummyClient/bin/Debug/net5.0/DummyClient.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Compound of Server and DummyClient",
+            "configurations": [
+                "Server",
+                "DummyClient"
+            ]
         }
     ]
 }
